@@ -302,8 +302,8 @@ class RatbagdResolution(_RatbagdDBus):
         self._xres = self.dbus_property("XResolution")
         self._yres = self.dbus_property("YResolution")
         self._rate = self.dbus_property("ReportRate")
-        self._max_res = self.dbus_property("MaxRes")
-        self._min_res = self.dbus_property("MinRes")
+        self._max_res = self.dbus_property("Maximum")
+        self._min_res = self.dbus_property("Minimum")
 
     def _on_g_signal(self, proxy, sender, signal, params):
         params = params.unpack()
