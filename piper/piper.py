@@ -110,7 +110,7 @@ class Piper(Gtk.ApplicationWindow):
     def  _init_header(self, device):
         hb = Gtk.HeaderBar()
         hb.set_show_close_button(True)
-        hb.props.title = "{}".format(device.description)
+        hb.props.title = "{}".format(device.name)
         self.set_titlebar(hb)
 
         # apply/reset buttons
@@ -164,12 +164,12 @@ class Piper(Gtk.ApplicationWindow):
         if len(ratbag.devices) > 1:
             print("Ooops, can't deal with more than one device. My bad.")
             for d in ratbag.devices[1:]:
-                print("Ignoring device {}".format(d.description))
+                print("Ignoring device {}".format(d.name))
 
         d = ratbag.devices[0]
         p = d.profiles
         if len(p) == 1 and len(p[0].resolutions) == 1:
-            self._show_error("Device {} does not support switchable resolutions".format(d.description))
+            self._show_error("Device {} does not support switchable resolutions".format(d.name))
             return None
 
         return d
