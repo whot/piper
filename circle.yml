@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/piper
     docker:
-      - image: fedora:rawhide
+      - image: fedora:latest
     steps:
       - run:
           command: |
