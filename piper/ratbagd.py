@@ -111,7 +111,11 @@ class _RatbagdDBus(GObject.GObject):
         GObject.GObject.__init__(self)
 
         if _RatbagdDBus._dbus is None:
-            _RatbagdDBus._dbus = Gio.bus_get_sync(Gio.BusType.SYSTEM, None)
+            try:
+                _RatbagdDBus._dbus = Gio.bus_get_sync(Gio.BusType.SYSTEM, None)
+            except GLib.Error:
+                raise RatbagdDBusUnavailable()
+
             if _RatbagdDBus._dbus is None:
                 raise RatbagdDBusUnavailable()
 
@@ -123,6 +127,7 @@ class _RatbagdDBus(GObject.GObject):
             object_path = "/" + ratbag1.replace('.', '/')
 
         self._object_path = object_path
+        self._interface = "{}.{}".format(ratbag1, interface)
 
         try:
             self._proxy = Gio.DBusProxy.new_sync(_RatbagdDBus._dbus,
@@ -130,7 +135,7 @@ class _RatbagdDBus(GObject.GObject):
                                                  None,
                                                  ratbag1,
                                                  object_path,
-                                                 "{}.{}".format(ratbag1, interface),
+                                                 self._interface,
                                                  None)
         except GLib.Error:
             raise RatbagdDBusUnavailable()
@@ -147,7 +152,19 @@ class _RatbagdDBus(GObject.GObject):
 
     def _set_dbus_property(self, property, type, value):
         # Sets a cached property on the bus.
+
+        # Take our real value and wrap it into a variant. To call
+        # org.freedesktop.DBus.Properties.Set we need to wrap that again
+        # into a (ssv), where v is our value's variant.
+        # args to .Set are "interface name", "function name",  value-variant
         val = GLib.Variant("{}".format(type), value)
+        pval = GLib.Variant("(ssv)".format(type), (self._interface, property, val))
+        self._proxy.call_sync("org.freedesktop.DBus.Properties.Set",
+                              pval, Gio.DBusCallFlags.NO_AUTO_START,
+                              500, None)
+
+        # This is our local copy, so we don't have to wait for the async
+        # update
         self._proxy.set_cached_property(property, val)
 
     def _dbus_call(self, method, type, *value):
@@ -188,23 +205,8 @@ class Ratbagd(_RatbagdDBus):
     Throws RatbagdDBusUnavailable when the DBus service is not available.
     """
 
-    __gsignals__ = {
-        "device-added":
-            (GObject.SIGNAL_RUN_LAST, GObject.TYPE_NONE, [str]),
-        "device-removed":
-            (GObject.SIGNAL_RUN_LAST, GObject.TYPE_NONE, [str]),
-    }
-
     def __init__(self):
         _RatbagdDBus.__init__(self, "Manager", None)
-        self._proxy.connect("g-signal", self._on_g_signal)
-
-    def _on_g_signal(self, proxy, sender, signal, params):
-        params = params.unpack()
-        if signal == "DeviceNew":
-            self.emit("device-added", params[0])
-        elif signal == "DeviceRemoved":
-            self.emit("device-removed", params[0])
 
     @GObject.Property
     def devices(self):
@@ -270,14 +272,6 @@ class RatbagdDevice(_RatbagdDBus):
             profiles = [RatbagdProfile(objpath) for objpath in result]
         return profiles
 
-    @GObject.Property
-    def active_profile(self):
-        """The currently active profile. This function returns a RatbagdProfile
-        or None if no active profile was found."""
-        profiles = self.profiles
-        active_index = self._get_dbus_property("ActiveProfile")
-        return profiles[active_index] if len(profiles) > active_index else None
-
     def get_svg(self, theme):
         """Gets the full path to the SVG for the given theme, or the empty
         string if none is available.
@@ -289,14 +283,6 @@ class RatbagdDevice(_RatbagdDBus):
         """
         return self._dbus_call("GetSvg", "s", theme)
 
-    def get_profile_by_index(self, index):
-        """Returns the profile found at the given index, or None if no profile
-        was found.
-
-        @param index The index to find the profile at, as int
-        """
-        return self._dbus_call("GetProfileByIndex", "u", index)
-
     def commit(self):
         """Commits all changes made to the device."""
         return self._dbus_call("Commit", "")
@@ -305,19 +291,8 @@ class RatbagdDevice(_RatbagdDBus):
 class RatbagdProfile(_RatbagdDBus):
     """Represents a ratbagd profile."""
 
-    __gsignals__ = {
-        "active-profile-changed":
-            (GObject.SIGNAL_RUN_LAST, GObject.TYPE_NONE, [int]),
-    }
-
     def __init__(self, object_path):
         _RatbagdDBus.__init__(self, "Profile", object_path)
-        self._proxy.connect("g-signal", self._on_g_signal)
-
-    def _on_g_signal(self, proxy, sender, signal, params):
-        params = params.unpack()
-        if signal == "ActiveProfileChanged":
-            self.emit("active-profile-changed", params[0])
 
     @GObject.Property
     def index(self):
@@ -355,29 +330,13 @@ class RatbagdProfile(_RatbagdDBus):
         return leds
 
     @GObject.Property
-    def active_resolution(self):
-        """The currently active resolution. This function returns a
-        RatbagdResolution object or None."""
-        resolutions = self.resolutions
-        active_index = self._get_dbus_property("ActiveResolution")
-        return resolutions[active_index] if len(resolutions) > active_index else None
-
-    @GObject.Property
-    def default_resolution(self):
-        """The default resolution. This function returns a RatbagdResolution
-        object or None."""
-        resolutions = self.resolutions
-        default_index = self._get_dbus_property("DefaultResolution")
-        return resolutions[default_index] if len(resolutions) > default_index else None
+    def is_active(self):
+        """Returns True if the profile is currenly active, false otherwise."""
+        return self._get_dbus_property("IsActive")
 
     def set_active(self):
         """Set this profile to be the active profile."""
         return self._dbus_call("SetActive", "")
-
-    def get_resolution_by_index(self, index):
-        """Returns the resolution found at the given index. This function
-        returns a RatbagdResolution or None if no resolution was found."""
-        return self._dbus_call("GetResolutionByIndex", "u", index)
 
 
 class RatbagdResolution(_RatbagdDBus):
@@ -386,23 +345,8 @@ class RatbagdResolution(_RatbagdDBus):
     CAP_INDIVIDUAL_REPORT_RATE = 1
     CAP_SEPARATE_XY_RESOLUTION = 2
 
-    __gsignals__ = {
-        "active-resolution-changed":
-            (GObject.SIGNAL_RUN_LAST, GObject.TYPE_NONE, [int]),
-        "default-resolution-changed":
-            (GObject.SIGNAL_RUN_LAST, GObject.TYPE_NONE, [int]),
-    }
-
     def __init__(self, object_path):
         _RatbagdDBus.__init__(self, "Resolution", object_path)
-        self._proxy.connect("g-signal", self._on_g_signal)
-
-    def _on_g_signal(self, proxy, sender, signal, params):
-        params = params.unpack()
-        if signal == "ActiveResolutionChanged":
-            self.emit("active-resolution-changed", params[0])
-        elif signal == "DefaultResolutionChanged":
-            self.emit("default-resolution-changed", params[0])
 
     @GObject.Property
     def index(self):
@@ -422,7 +366,7 @@ class RatbagdResolution(_RatbagdDBus):
     @GObject.Property
     def resolution(self):
         """The tuple (xres, yres) with each resolution in DPI."""
-        return self._get_dbus_property("XResolution"), self._get_dbus_property("YResolution")
+        return self._get_dbus_property("Resolution")
 
     @resolution.setter
     def resolution(self, res):
@@ -430,8 +374,7 @@ class RatbagdResolution(_RatbagdDBus):
 
         @param res The new resolution, as (int, int)
         """
-        ret = self._dbus_call("SetResolution", "uu", *res)
-        self._set_dbus_property("Resolution", "(uu)", res)
+        ret = self._set_dbus_property("Resolution", "(uu)", res)
         return ret
 
     @GObject.Property
@@ -455,9 +398,19 @@ class RatbagdResolution(_RatbagdDBus):
 
         @param rate The new report rate, as int
         """
-        ret = self._dbus_call("SetReportRate", "u", rate)
-        self._set_dbus_property("ReportRate", "u", rate)
-        return ret
+        return self._set_dbus_property("ReportRate", "u", rate)
+
+    @GObject.Property
+    def is_active(self):
+        """True if this is the currently active resolution, False
+        otherwise"""
+        return self._get_dbus_property("IsActive")
+
+    @GObject.Property
+    def is_default(self):
+        """True if this is the currently default resolution, False
+        otherwise"""
+        return self._get_dbus_property("IsDefault")
 
     def set_default(self):
         """Set this resolution to be the default."""
@@ -574,9 +527,7 @@ class RatbagdLed(_RatbagdDBus):
         @param mode The new mode, as one of MODE_OFF, MODE_ON, MODE_CYCLE and
                     MODE_BREATHING.
         """
-        ret = self._dbus_call("SetMode", "u", mode)
-        self._set_dbus_property("Mode", "u", mode)
-        return ret
+        return self._set_dbus_property("Mode", "u", mode)
 
     @GObject.Property
     def type(self):
@@ -594,9 +545,7 @@ class RatbagdLed(_RatbagdDBus):
 
         @param color An RGB color, as an integer triplet with values 0-255.
         """
-        ret = self._dbus_call("SetColor", "(uuu)", color)
-        self._set_dbus_property("Color", "(uuu)", color)
-        return ret
+        return self._set_dbus_property("Color", "(uuu)", color)
 
     @GObject.Property
     def effect_rate(self):
@@ -609,9 +558,7 @@ class RatbagdLed(_RatbagdDBus):
 
         @param effect_rate The new effect rate, as int
         """
-        ret = self._dbus_call("SetEffectRate", "u", effect_rate)
-        self._set_dbus_property("EffectRate", "u", effect_rate)
-        return ret
+        return self._set_dbus_property("EffectRate", "u", effect_rate)
 
     @GObject.Property
     def brightness(self):
@@ -624,6 +571,4 @@ class RatbagdLed(_RatbagdDBus):
 
         @param brightness The new brightness, as int
         """
-        ret = self._dbus_call("SetBrightness", "u", brightness)
-        self._set_dbus_property("Brightness", "u", brightness)
-        return ret
+        return self._set_dbus_property("Brightness", "u", brightness)
