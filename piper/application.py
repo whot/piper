@@ -15,7 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from .ratbagd import Ratbagd, RatbagdDBusUnavailable
-from .piper import Piper
+from .window import Window
 
 import gi
 gi.require_version("Gio", "2.0")
@@ -49,7 +49,8 @@ class Application(Gtk.Application):
     def do_activate(self):
         """This function is called when the user requests a new window to be
         opened."""
-        window = Piper(self, self._ratbag)
+        window = Window(self._ratbag, application=self)
+        window.show_all()
         window.present()
 
     def _build_app_menu(self):

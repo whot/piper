@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-	<gresource prefix="/org/freedesktop/Piper">
-		<file preprocess="xml-stripblanks">piper.ui</file>
-		<file preprocess="xml-stripblanks">aboutDialog.ui</file>
-		<file>404.svg</file>
-		<!-- Using this alias, GtkApplication will automatically pick it up for us. -->
-		<file alias="gtk/menus.ui" preprocess="xml-stripblanks">menus.ui</file>
-	</gresource>
+     <gresource prefix="/org/freedesktop/Piper">
+        <file>404.svg</file>
+
+        <file preprocess="xml-stripblanks">AboutDialog.ui</file>
+        <file preprocess="xml-stripblanks">ui/LedDialog.ui</file>
+        <file preprocess="xml-stripblanks">ui/OptionButton.ui</file>
+        <file preprocess="xml-stripblanks">ui/ResolutionRow.ui</file>
+        <file preprocess="xml-stripblanks">ui/ResolutionsPage.ui</file>
+        <file preprocess="xml-stripblanks">ui/Window.ui</file>
+        <!-- Using this alias, GtkApplication will automatically pick it up for us. -->
+        <file alias="gtk/menus.ui" preprocess="xml-stripblanks">ui/Menus.ui</file>
+    </gresource>
 </gresources>
