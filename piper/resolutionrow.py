@@ -28,7 +28,7 @@ class ResolutionRow(Gtk.ListBoxRow):
 
     __gtype_name__ = "ResolutionRow"
 
-    title_label = GtkTemplate.Child()
+    dpi_label = GtkTemplate.Child()
     revealer = GtkTemplate.Child()
     scale = GtkTemplate.Child()
 
@@ -92,7 +92,7 @@ class ResolutionRow(Gtk.ListBoxRow):
         # ending up in an infinite update loop.
         with self._resolution.handler_block(self._resolution_handler):
             self._resolution.resolution = xres, xres
-        self.title_label.set_text("{} DPI".format(xres))
+        self.dpi_label.set_text("{} DPI".format(xres))
 
     def _on_resolution_changed(self, resolution, pspec):
         # RatbagdResolution's resolution has changed, update the scales.
