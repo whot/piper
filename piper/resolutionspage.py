@@ -77,6 +77,7 @@ class ResolutionsPage(Gtk.Box):
                     button.special in self._resolution_labels:
                 label = Gtk.Label(RatbagdButton.SPECIAL_DESCRIPTION[button.special])
                 mousemap.add(label, "#button{}".format(button.index))
+        mousemap.show_all()
 
         for resolution in profile.resolutions:
             row = ResolutionRow(self._device, resolution)

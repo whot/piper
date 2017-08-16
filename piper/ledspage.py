@@ -48,6 +48,7 @@ class LedsPage(Gtk.Box):
         self._sizegroup = Gtk.SizeGroup(Gtk.SizeGroupMode.HORIZONTAL)
 
         self._set_profile(self._device.active_profile)
+        self.show_all()
 
     def _set_profile(self, profile):
         self._profile = profile
