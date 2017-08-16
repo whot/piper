@@ -56,6 +56,7 @@ class ResolutionRow(Gtk.ListBoxRow):
         xres, __ = resolution.resolution
         minres = resolution.minimum
         maxres = resolution.maximum
+        self.dpi_label.set_text("{} DPI".format(xres))
 
         with self.scale.handler_block(self._scale_handler):
             self.scale.props.adjustment.configure(xres, minres, maxres, 50, 50, 0)
