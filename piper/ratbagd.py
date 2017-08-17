@@ -742,6 +742,13 @@ class RatbagdLed(_RatbagdDBus):
     MODE_CYCLE = 2
     MODE_BREATHING = 3
 
+    LED_DESCRIPTION = {
+        MODE_OFF: _("Off"),
+        MODE_ON: _("Solid"),
+        MODE_CYCLE: _("Cycle"),
+        MODE_BREATHING: _("Breathing"),
+    }
+
     def __init__(self, object_path):
         _RatbagdDBus.__init__(self, "Led", object_path)
 
