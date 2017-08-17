@@ -182,6 +182,7 @@
                                         <property name="label" translatable="yes">Swaps the physical left- and right mouse buttons.</property>
                                         <property name="single_line_mode">True</property>
                                         <property name="max_width_chars">20</property>
+                                        <property name="track_visited_links">False</property>
                                         <attributes>
                                           <attribute name="scale" value="0.90000000000000002"/>
                                         </attributes>
@@ -328,6 +329,7 @@
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Press Escape to cancel or Return to accept.</property>
                     <property name="wrap">True</property>
+                    <property name="track_visited_links">False</property>
                     <style>
                       <class name="dim-label"/>
                     </style>
