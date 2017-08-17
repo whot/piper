@@ -27,6 +27,7 @@
       <object class="GtkLabel" id="label_detail">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="label">Error detail message</property>
         <property name="wrap">True</property>
         <property name="track_visited_links">False</property>
         <style>
@@ -44,6 +45,7 @@
       <object class="GtkLabel" id="label_error">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="label">Error message</property>
         <property name="track_visited_links">False</property>
         <attributes>
           <attribute name="scale" value="2"/>
