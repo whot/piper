@@ -19,6 +19,6 @@ jobs:
           command: |
             meson build
             ninja -C build
-      - run: flake8-3 buil/piper buil/piper.devel
+      - run: flake8-3 build/piper build/piper.devel
       - store_artifacts:
           path: ~/piper/build/meson-logs
