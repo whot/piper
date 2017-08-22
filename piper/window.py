@@ -45,16 +45,17 @@ class Window(Gtk.ApplicationWindow):
         Gtk.ApplicationWindow.__init__(self, *args, **kwargs)
         self.init_template()
 
-        perspectives = [ErrorPerspective(), MousePerspective(), WelcomePerspective()]
-        for perspective in perspectives:
-            self._add_perspective(perspective, ratbag)
-        welcome_perspective = self._get_child("welcome_perspective")
-        welcome_perspective.connect("device-selected", self._on_device_selected)
-
+        self._add_perspective(ErrorPerspective(), ratbag)
         if ratbag is None:
             self._present_error_perspective(_("Cannot connect to ratbagd"),
                                             _("Please make sure it is running"))
             return
+
+        for perspective in [MousePerspective(), WelcomePerspective()]:
+            self._add_perspective(perspective, ratbag)
+
+        welcome_perspective = self._get_child("welcome_perspective")
+        welcome_perspective.connect("device-selected", self._on_device_selected)
 
         ratbag.connect("device-added", self._on_device_added)
         ratbag.connect("device-removed", self._on_device_removed)
