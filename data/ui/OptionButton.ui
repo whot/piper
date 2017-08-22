@@ -46,6 +46,8 @@
             <property name="halign">center</property>
             <property name="label">Solid</property>
             <property name="track_visited_links">False</property>
+            <property name="max_width_chars">20</property>
+            <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
           </object>
           <packing>
             <property name="expand">True</property>
