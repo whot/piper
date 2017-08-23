@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: piper\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-23 13:02+1000\n"
+"POT-Creation-Date: 2017-08-23 09:58+0200\n"
 "PO-Revision-Date: 2017-08-23 13:02+1000\n"
 "Last-Translator: Peter Hutterer <peter.hutterer@who-t.net>\n"
 "Language-Team: German <>\n"
@@ -190,17 +190,17 @@ msgstr "Verbindung mit ratbagd fehlgeschlagen"
 msgid "Please make sure ratbagd is running"
 msgstr "Bitte vergewissern Sie sich dass ratbagd läuft"
 
-#: piper/window.py:65 piper/window.py:115
+#: piper/window.py:64 piper/window.py:114
 msgid "Cannot find any devices"
 msgstr "Es wurden keine Geräte gefunden"
 
-#: piper/window.py:66 piper/window.py:116
+#: piper/window.py:65 piper/window.py:115
 msgid "Please make sure your device is supported and plugged in"
 msgstr ""
 "Bitte vergewissern Sie sich dass Ihr Gerät angeschlossen ist und unterstützt "
 "wird"
 
-#: piper/window.py:78
+#: piper/window.py:77
 msgid "There are unapplied changes. Are you sure you want to quit?"
 msgstr "Es gibt ungespeicherte Änderungen. Wollen Sie wirklich aussteigen?"
 
@@ -208,19 +208,19 @@ msgstr "Es gibt ungespeicherte Änderungen. Wollen Sie wirklich aussteigen?"
 #. mouse perspective as we'd otherwise be in the welcome screen with
 #. more than one device remaining. Hence, we display the error
 #. perspective.
-#: piper/window.py:107
+#: piper/window.py:106
 msgid "Your device disconnected!"
 msgstr "Das Gerät wurde entfernt!"
 
-#: piper/window.py:108
+#: piper/window.py:107
 msgid "Please make sure your device is plugged in"
 msgstr "Bitte vergewissern Sie sich dass Ihr Gerät angeschlossen ist"
 
-#: piper/window.py:156
+#: piper/window.py:155
 msgid "Cannot display device SVG"
 msgstr "Das SVG des Gerätes kann nicht angezeigt werden"
 
-#: piper/window.py:158
+#: piper/window.py:157
 msgid "Unknown exception occurred"
 msgstr "Ein unbekannter Fehler ist aufgetreten"
 
