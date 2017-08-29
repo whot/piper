@@ -123,12 +123,12 @@ class MousePerspective(Gtk.Overlay):
         self._hide_notification_commit()
         return False
 
+    def _commit_cb(self, status):
+        if not status == RatbagErrorCode.RATBAG_SUCCESS:
+            self._show_notification_commit()
+
     @GtkTemplate.Callback
     def _on_save_button_clicked(self, button):
-        def _commit_cb(self, status):
-            if not status == RatbagErrorCode.RATBAG_SUCCESS:
-                self._show_notification_commit()
-
         self._device.commit(self._commit_cb)
 
     @GtkTemplate.Callback
