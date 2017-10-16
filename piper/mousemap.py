@@ -314,6 +314,10 @@ class MouseMap(Gtk.Container):
     def _on_leave(self, widget, event):
         # Restores the device SVG to its original state.
         old_highlight = self._highlight_element
+
+        if old_highlight is None:
+            return
+
         self._highlight_element = None
         self._redraw_svg_element(old_highlight)
 
