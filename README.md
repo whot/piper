@@ -2,12 +2,20 @@ Piper [![CircleCI](https://circleci.com/gh/libratbag/piper.svg?style=svg&circle-
 =====
 
 Piper is a GTK+ application to configure gaming mice, using libratbag via
-ratbagd. For the design mockups, see the [Redesign
-Wiki](https://github.com/libratbag/piper/wiki/Piper-Redesign).
+ratbagd.
 
 In order to run Piper, `ratbagd` has to be running (without it, you'll get to
 see a pretty mouse trap). To see how, see [its
 README](https://github.com/libratbag/libratbag/blob/master/README.md#running-ratbagd-as-dbus-activated-systemd-service).
+
+Screenshots
+===========
+
+![resolution configuration screenshot](https://github.com/whot/piper/blob/wiki/screenshots/piper-resolutionpage.png)
+
+![button configuration screenshot](https://github.com/whot/piper/blob/wiki/screenshots/piper-buttonpage.png)
+
+![LED configuration screenshot](https://github.com/whot/piper/blob/wiki/screenshots/piper-ledpage.png)
 
 Installing Piper
 ================
