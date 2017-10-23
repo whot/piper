@@ -11,11 +11,11 @@ README](https://github.com/libratbag/libratbag/blob/master/README.md#running-rat
 Screenshots
 ===========
 
-![resolution configuration screenshot](https://github.com/whot/piper/blob/wiki/screenshots/piper-resolutionpage.png)
+![resolution configuration screenshot](https://github.com/libratbag/piper/blob/wiki/screenshots/piper-resolutionpage.png)
 
-![button configuration screenshot](https://github.com/whot/piper/blob/wiki/screenshots/piper-buttonpage.png)
+![button configuration screenshot](https://github.com/libratbag/piper/blob/wiki/screenshots/piper-buttonpage.png)
 
-![LED configuration screenshot](https://github.com/whot/piper/blob/wiki/screenshots/piper-ledpage.png)
+![LED configuration screenshot](https://github.com/libratbag/piper/blob/wiki/screenshots/piper-ledpage.png)
 
 Installing Piper
 ================
