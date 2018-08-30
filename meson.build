@@ -7,6 +7,7 @@ project('piper',
 dependency('python3', required: true)
 dependency('pygobject-3.0', required: true)
 ratbagd = find_program('ratbagd', required: false)
+ratbagd_required_version='0.9.903'
 
 if not ratbagd.found()
 	message('''
@@ -17,6 +18,20 @@ if not ratbagd.found()
 	*==\o/==                                             *
 	******************************************************
 	''')
+else
+	r = run_command(ratbagd, '--version')
+	if r.returncode() != 0 or r.stdout().version_compare('<' + ratbagd_required_version)
+	message('''
+	*********************** WARNING ****************************
+	*                 (   )(                                   *
+	*         (\-.     ) (  )    ratbagd found in $PATH is too *
+	*         / _`> .---------.  old and  will  not  work with *
+	* _)     / _)=  |'-------'|  this version of Piper. Please *
+	*(      / _/    |O   O   o|  update libratbag/ratbagd.     *
+	* `-.__(___)_   | o O . o |                                *
+	************************************************************
+	''')
+	endif
 endif
 
 # Gtk version required
