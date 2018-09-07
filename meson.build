@@ -1,9 +1,9 @@
 project('piper',
-	version: '0.2.901',
+	version: '0.2.902',
 	license: 'GPLv2',
 	meson_version: '>= 0.40.0')
 # The tag date of the project_version(), update when the version bumps.
-version_date='2018-07-12'
+version_date='2018-09-07'
 
 # Dependencies
 dependency('python3', required: true)
