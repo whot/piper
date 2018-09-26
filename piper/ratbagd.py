@@ -36,32 +36,32 @@ def N_(x):
 
 
 class RatbagErrorCode(IntEnum):
-    RATBAG_SUCCESS = 0
+    SUCCESS = 0
 
     """An error occured on the device. Either the device is not a libratbag
     device or communication with the device failed."""
-    RATBAG_ERROR_DEVICE = -1000
+    DEVICE = -1000
 
     """Insufficient capabilities. This error occurs when a requested change is
     beyond the device's capabilities."""
-    RATBAG_ERROR_CAPABILITY = -1001
+    CAPABILITY = -1001
 
     """Invalid value or value range. The provided value or value range is
     outside of the legal or supported range."""
-    RATBAG_ERROR_VALUE = -1002
+    VALUE = -1002
 
     """A low-level system error has occured, e.g. a failure to access files
     that should be there. This error is usually unrecoverable and libratbag will
     print a log message with details about the error."""
-    RATBAG_ERROR_SYSTEM = -1003
+    SYSTEM = -1003
 
     """Implementation bug, either in libratbag or in the caller. This error is
     usually unrecoverable and libratbag will print a log message with details
     about the error."""
-    RATBAG_ERROR_IMPLEMENTATION = -1004
+    IMPLEMENTATION = -1004
 
 
-class RatbagdDBusUnavailable(Exception):
+class RatbagdUnavailable(Exception):
     """Signals DBus is unavailable or the ratbagd daemon is not available."""
     pass
 
@@ -77,37 +77,37 @@ class RatbagError(Exception):
 
 
 class RatbagErrorDevice(RatbagError):
-    """An exception corresponding to RatbagErrorCode.RATBAG_ERROR_DEVICE."""
+    """An exception corresponding to RatbagErrorCode.DEVICE."""
     pass
 
 
 class RatbagErrorCapability(RatbagError):
-    """An exception corresponding to RatbagErrorCode.RATBAG_ERROR_CAPABILITY."""
+    """An exception corresponding to RatbagErrorCode.CAPABILITY."""
     pass
 
 
 class RatbagErrorValue(RatbagError):
-    """An exception corresponding to RatbagErrorCode.RATBAG_ERROR_Value."""
+    """An exception corresponding to RatbagErrorCode.VALUE."""
     pass
 
 
 class RatbagErrorSystem(RatbagError):
-    """An exception corresponding to RatbagErrorCode.RATBAG_ERROR_System."""
+    """An exception corresponding to RatbagErrorCode.SYSTEM."""
     pass
 
 
 class RatbagErrorImplementation(RatbagError):
-    """An exception corresponding to RatbagErrorCode.RATBAG_ERROR_IMPLEMENTATION."""
+    """An exception corresponding to RatbagErrorCode.IMPLEMENTATION."""
     pass
 
 
 """A table mapping RatbagErrorCode values to RatbagError* exceptions."""
 EXCEPTION_TABLE = {
-    RatbagErrorCode.RATBAG_ERROR_DEVICE: RatbagErrorDevice,
-    RatbagErrorCode.RATBAG_ERROR_CAPABILITY: RatbagErrorCapability,
-    RatbagErrorCode.RATBAG_ERROR_VALUE: RatbagErrorValue,
-    RatbagErrorCode.RATBAG_ERROR_SYSTEM: RatbagErrorSystem,
-    RatbagErrorCode.RATBAG_ERROR_IMPLEMENTATION: RatbagErrorImplementation
+    RatbagErrorCode.DEVICE: RatbagErrorDevice,
+    RatbagErrorCode.CAPABILITY: RatbagErrorCapability,
+    RatbagErrorCode.VALUE: RatbagErrorValue,
+    RatbagErrorCode.SYSTEM: RatbagErrorSystem,
+    RatbagErrorCode.IMPLEMENTATION: RatbagErrorImplementation
 }
 
 
@@ -121,7 +121,7 @@ class _RatbagdDBus(GObject.GObject):
             try:
                 _RatbagdDBus._dbus = Gio.bus_get_sync(Gio.BusType.SYSTEM, None)
             except GLib.Error as e:
-                raise RatbagdDBusUnavailable(e.message)
+                raise RatbagdUnavailable(e.message)
 
         ratbag1 = "org.freedesktop.ratbag1"
         if os.environ.get('RATBAGCTL_DEVEL'):
@@ -142,10 +142,10 @@ class _RatbagdDBus(GObject.GObject):
                                                  self._interface,
                                                  None)
         except GLib.Error as e:
-            raise RatbagdDBusUnavailable(e.message)
+            raise RatbagdUnavailable(e.message)
 
         if self._proxy.get_name_owner() is None:
-            raise RatbagdDBusUnavailable("No one currently owns {}".format(ratbag1))
+            raise RatbagdUnavailable("No one currently owns {}".format(ratbag1))
 
         self._proxy.connect("g-properties-changed", self._on_properties_changed)
 
@@ -270,7 +270,7 @@ class Ratbagd(_RatbagdDBus):
     through ratbagd; actual interaction with the devices is via the
     RatbagdDevice, RatbagdProfile, RatbagdResolution and RatbagdButton objects.
 
-    Throws RatbagdDBusUnavailable when the DBus service is not available.
+    Throws RatbagdUnavailable when the DBus service is not available.
     """
 
     __gsignals__ = {

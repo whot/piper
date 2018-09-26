@@ -126,7 +126,7 @@ class MousePerspective(Gtk.Overlay):
         return False
 
     def _commit_cb(self, status):
-        if not status == RatbagErrorCode.RATBAG_SUCCESS:
+        if not status == RatbagErrorCode.SUCCESS:
             self._show_notification_commit()
 
     @GtkTemplate.Callback
