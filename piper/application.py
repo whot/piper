@@ -14,7 +14,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-from .ratbagd import Ratbagd, RatbagdDBusUnavailable
+from .ratbagd import Ratbagd, RatbagdUnavailable
 from .window import Window
 
 import gi
@@ -43,7 +43,7 @@ class Application(Gtk.Application):
         self._build_app_menu()
         try:
             self._ratbag = Ratbagd()
-        except RatbagdDBusUnavailable:
+        except RatbagdUnavailable:
             self._ratbag = None
 
     def do_activate(self):
