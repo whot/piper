@@ -95,7 +95,7 @@
     <property name="can_focus">False</property>
     <property name="show_close_button">True</property>
     <child>
-      <object class="GtkMenuButton">
+      <object class="GtkMenuButton" id="button_profile">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <property name="receives_default">True</property>
