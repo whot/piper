@@ -59,6 +59,7 @@ class Window(Gtk.ApplicationWindow):
 
         ratbag.connect("device-added", self._on_device_added)
         ratbag.connect("device-removed", self._on_device_removed)
+        ratbag.connect("daemon-disappeared", self._on_daemon_disappeared)
 
         if len(ratbag.devices) == 0:
             self._present_error_perspective(_("Cannot find any devices"),
@@ -81,6 +82,10 @@ class Window(Gtk.ApplicationWindow):
                 if response == Gtk.ResponseType.NO or response == Gtk.ResponseType.DELETE_EVENT:
                     return Gdk.EVENT_STOP
         return Gdk.EVENT_PROPAGATE
+
+    def _on_daemon_disappeared(self, ratbag):
+        self._present_error_perspective(_("Ooops. ratbagd has disappeared"),
+                                        _("Please restart Piper"))
 
     def _on_device_added(self, ratbag, device):
         if len(ratbag.devices) == 1:
