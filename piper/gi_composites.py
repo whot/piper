@@ -131,7 +131,7 @@ def _init_template(self, cls, base_init_template):
                                  ', '.join(self.__gtemplate_widgets__))
 
     for name in self.__gtemplate_methods__.difference(connected_signals):
-        errmsg = ("Signal '%s' was declared with @GtkTemplate.Callback " +
+        errmsg = ("Signal '%s' was declared with @GtkTemplate.Callback "
                   "but was not present in template") % name
         warnings.warn(errmsg, GtkTemplateWarning)
 
