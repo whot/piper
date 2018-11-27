@@ -116,6 +116,7 @@ class ResolutionsPage(Gtk.Box):
 
             if row is self.add_resolution_row:
                 print("TODO: RatbagdProfile needs a way to add resolutions")
+                self._last_activated_row = None
             else:
                 self._last_activated_row = row
                 row.toggle_revealer()
