@@ -41,6 +41,7 @@ class MousePerspective(Gtk.Overlay):
     label_profile = GtkTemplate.Child()
     add_profile_button = GtkTemplate.Child()
     button_commit = GtkTemplate.Child()
+    button_profile = GtkTemplate.Child()
 
     def __init__(self, *args, **kwargs):
         """Instantiates a new MousePerspective."""
@@ -91,6 +92,8 @@ class MousePerspective(Gtk.Overlay):
             self.stack.add_titled(ButtonsPage(device), "buttons", _("Buttons"))
         if RatbagdDevice.CAP_LED in capabilities:
             self.stack.add_titled(LedsPage(device), "leds", _("LEDs"))
+
+        self.button_profile.set_visible(len(device.profiles) > 1)
 
         active_profile = device.active_profile
         self.label_profile.set_label(active_profile.name)
