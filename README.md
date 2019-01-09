@@ -36,20 +36,12 @@ updated to a newer version, or some other unexpected error occured.
 Installing Piper
 ================
 
-Most popular distributions package Piper and it is available through the
-packaging system (apt, dnf, yum, pacman, zypper, ...). This is the preferred
-way of installing Piper.
-
-Piper is also available as a
-[Flatpak](https://flathub.org/apps/details/org.freedesktop.Piper).
-For technical reasons, ratbagd cannot be flatpaked yet so users must install
-ratbagd through their distribution packaging system.
+See [our Wiki](https://github.com/libratbag/piper/wiki/Installation) for how to install Piper.
 
 Building Piper from git
 =======================
 
-Piper uses the [meson build system](http://mesonbuild.com/) which in turn uses
-[ninja](https://ninja-build.org/) to build and install itself. Run the following
+Piper uses the [meson build system](http://mesonbuild.com/). Run the following
 commands to clone Piper and initialize the build:
 
 ```
@@ -57,9 +49,6 @@ $ git clone https://github.com/libratbag/piper.git
 $ cd piper
 $ meson builddir --prefix=/usr/
 ```
-
-[This blog post](https://who-t.blogspot.com/2018/07/meson-fails-with-native-dependency-not-found.html)
-explains how to spot and install missing dependencies.
 
 To build or re-build after code-changes and install, run:
 
@@ -70,6 +59,9 @@ $ sudo ninja -C builddir install
 
 Note: `builddir` is the build output directory and can be changed to any other
 directory name.
+
+See [our Wiki](https://github.com/libratbag/piper/wiki/Installation) for what
+to do when you encounter missing dependencies.
 
 Contributing
 ============
