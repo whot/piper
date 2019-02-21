@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # vim: set expandtab shiftwidth=4 tabstop=4:
 
+import os
 import sys
 from lxml import etree
 import logging
@@ -102,6 +103,7 @@ def check_buttons(root):
 
 
 def check_svg(path):
+    path = os.path.join(os.environ.get('BASEDIR', '.'), path)
     svg = etree.parse(path)
     root = svg.getroot()
 

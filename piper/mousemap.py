@@ -19,10 +19,12 @@ import gi
 import sys
 from lxml import etree
 
+from piper.svg import get_svg
+
 gi.require_version("Gdk", "3.0")
 gi.require_version("Gtk", "3.0")
 gi.require_version("Rsvg", "2.0")
-from gi.repository import Gdk, GLib, Gtk, GObject, Rsvg, Gio
+from gi.repository import Gdk, GLib, Gtk, GObject, Rsvg
 
 """This module contains the MouseMap widget (and its helper class
 _MouseMapChild), which is central to the button and LED configuration stack
@@ -106,14 +108,9 @@ class MouseMap(Gtk.Container):
         if ratbagd_device is None:
             raise ValueError("Device cannot be None")
         try:
-            fd = ratbagd_device.get_svg_fd("gnome")
-            uis = Gio.UnixInputStream.new(fd.fileno(), False)
-            self._handle = Rsvg.Handle.new_from_stream_sync(uis, None,
-                                                            Rsvg.HandleFlags.FLAGS_NONE,
-                                                            None)
-            # separate fd for the XML parsing to avoid file offset issues
-            fd = ratbagd_device.get_svg_fd("gnome")
-            self._svg_data = etree.parse(fd)
+            svg_bytes = get_svg(ratbagd_device.model)
+            self._handle = Rsvg.Handle.new_from_data(svg_bytes)
+            self._svg_data = etree.fromstring(svg_bytes)
         except FileNotFoundError:
             raise ValueError("Device has no image or its path is invalid")
 
