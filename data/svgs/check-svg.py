@@ -11,6 +11,7 @@ style_query = '//svg:rect[@id=\"{}\"][contains(@style, \"{}\")]'
 
 logger = None
 
+
 class SVGLogger(logging.Logger):
     def __init__(self, name, level=logging.NOTSET):
         self.success = True
@@ -111,6 +112,7 @@ def check_svg(path):
     check_layers(root)
     check_buttons(root)
     check_leds(root)
+
 
 if __name__ == "__main__":
     success = True
