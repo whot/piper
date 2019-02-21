@@ -13,13 +13,6 @@ about_dialog = configure_file(input: 'ui/AboutDialog.ui.in',
 			      output: 'AboutDialog.ui',
 			      configuration: conf)
 
-gnome.compile_resources('piper', 'piper.gresource.xml',
-			source_dir: '.',
-			dependencies: [about_dialog],
-			gresource_bundle: true,
-			install: true,
-			install_dir: pkgdatadir)
-
 install_data('org.freedesktop.Piper.svg', install_dir: icondir)
 
 i18n.merge_file(input: 'org.freedesktop.Piper.desktop.in',
@@ -39,3 +32,60 @@ i18n.merge_file(input: appdata,
                 po_dir: podir,
                 install: true,
                 install_dir: metainfodir)
+
+
+# SVG files
+
+svgs = [
+	'svgs/fallback.svg',
+	'svgs/logitech-g102-g203.svg',
+	'svgs/logitech-g300.svg',
+	'svgs/logitech-g303.svg',
+	'svgs/logitech-g402.svg',
+	'svgs/logitech-g403.svg',
+	'svgs/logitech-g500s.svg',
+	'svgs/logitech-g500.svg',
+	'svgs/logitech-g502.svg',
+	'svgs/logitech-g600.svg',
+	'svgs/logitech-g603.svg',
+	'svgs/logitech-g700.svg',
+	'svgs/logitech-g703.svg',
+	'svgs/logitech-g900.svg',
+	'svgs/logitech-g9.svg',
+	'svgs/logitech-g-pro.svg',
+	'svgs/logitech-g-pro-wireless.svg',
+	'svgs/logitech-mx-anywhere2s.svg',
+	'svgs/logitech-mx-anywhere2.svg',
+	'svgs/logitech-mx-master-2s.svg',
+	'svgs/logitech-mx-master.svg',
+	'svgs/roccat-kone-xtd.svg',
+	'svgs/steelseries-kinzu-v2.svg',
+	'svgs/steelseries-rival310.svg',
+	'svgs/steelseries-rival600.svg',
+	'svgs/steelseries-rival.svg',
+	'svgs/steelseries-sensei310.svg',
+	'svgs/steelseries-senseiraw.svg',
+]
+
+svg_mapping = files('svgs/svg-lookup.ini')
+
+test_svg_files = find_program('svgs/check-svg.py')
+test('check-svg', test_svg_files,
+     args: svgs,
+     env: ['BASEDIR=@0@'.format(meson.current_source_dir())])
+
+gresource = configure_file(input: 'piper.gresource.xml.in',
+                           output: 'piper.gresource.xml',
+                           command: ['generate-piper-gresource.xml.py',
+                                     join_paths(meson.current_source_dir(), 'piper.gresource.xml.in'),
+                                     join_paths(meson.current_build_dir(), 'piper.gresource.xml'),
+                                     svgs
+                                     ]
+                           )
+
+gnome.compile_resources('piper', gresource,
+			source_dir: '.',
+			dependencies: [about_dialog],
+			gresource_bundle: true,
+			install: true,
+			install_dir: pkgdatadir)

@@ -20,7 +20,9 @@ from .gi_composites import GtkTemplate
 
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import GdkPixbuf, GObject, Gtk, Rsvg, Gio
+from gi.repository import GdkPixbuf, GObject, Gtk, Rsvg
+
+from piper.svg import get_svg
 
 
 @GtkTemplate(ui="/org/freedesktop/Piper/ui/DeviceRow.ui")
@@ -40,11 +42,8 @@ class DeviceRow(Gtk.ListBoxRow):
         self.title.set_text(device.name)
 
         try:
-            fd = device.get_svg_fd("gnome")
-            uis = Gio.UnixInputStream.new(fd.fileno(), False)
-            handle = Rsvg.Handle.new_from_stream_sync(uis, None,
-                                                      Rsvg.HandleFlags.FLAGS_NONE,
-                                                      None)
+            svg_bytes = get_svg(device.model)
+            handle = Rsvg.Handle.new_from_data(svg_bytes)
             svg = handle.get_pixbuf_sub("#Device")
             handle.close()
             if svg is None:
