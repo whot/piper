@@ -88,21 +88,16 @@ class ResolutionsPage(Gtk.Box):
 
     def _on_active_profile_changed(self, device, profile):
         # Updates report rate to reflect the new active profile's report rate.
-        active_resolution = profile.active_resolution
         with self.rate_500.handler_block(self._handler_500):
-            self.rate_500.set_active(active_resolution.report_rate == 500)
+            self.rate_500.set_active(profile.report_rate == 500)
         with self.rate_1000.handler_block(self._handler_1000):
-            self.rate_1000.set_active(active_resolution.report_rate == 1000)
+            self.rate_1000.set_active(profile.report_rate == 1000)
 
     def _on_report_rate_toggled(self, button, rate):
-        # TODO: currently no devices expose CAP_INDIVIDUAL_REPORT_RATE, but if
-        # so then we should check for this here and set it only on the relevant
-        # resolution.
         if not button.get_active():
             return
         profile = self._device.active_profile
-        for resolution in profile.resolutions:
-            resolution.report_rate = rate
+        profile.report_rate = rate
 
     @GtkTemplate.Callback
     def _on_row_activated(self, listbox, row):
