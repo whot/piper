@@ -59,7 +59,7 @@ class ResolutionRow(Gtk.ListBoxRow):
         self._active_handler = resolution.connect("notify::is-active",
                                                   self._on_is_active_changed)
 
-        xres, __ = resolution.resolution
+        xres = resolution.resolution[0]
         minres = resolution.resolutions[0]
         maxres = resolution.resolutions[-1]
         self.resolutions = resolution.resolutions
@@ -116,12 +116,15 @@ class ResolutionRow(Gtk.ListBoxRow):
         # Freeze the notify::resolution signal from firing to prevent Piper from
         # ending up in an infinite update loop.
         with self._resolution.handler_block(self._resolution_handler):
-            self._resolution.resolution = xres, xres
+            if len(self._resolution.resolution) == 1:
+                self._resolution.resolution = (xres, )
+            else:
+                self._resolution.resolution = (xres, xres)
         self.dpi_label.set_text("{} DPI".format(xres))
 
     def _on_resolution_changed(self, resolution, pspec):
         # RatbagdResolution's resolution has changed, update the scales.
-        xres, __ = resolution.resolution
+        xres = resolution.resolution[0]
         self.scale.set_value(xres)
 
     def _on_is_active_changed(self, resolution, pspec):
