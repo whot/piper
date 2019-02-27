@@ -23,6 +23,7 @@
 
 import os
 import sys
+import hashlib
 
 from enum import IntEnum
 from evdev import ecodes
@@ -282,19 +283,6 @@ class Ratbagd(_RatbagdDBus):
 class RatbagdDevice(_RatbagdDBus):
     """Represents a ratbagd device."""
 
-    CAP_NONE = 0
-    CAP_QUERY_CONFIGURATION = 1
-    CAP_RESOLUTION = 100
-    CAP_SWITCHABLE_RESOLUTION = 101
-    CAP_PROFILE = 200
-    CAP_SWITCHABLE_PROFILE = 201
-    CAP_DISABLE_PROFILE = 202
-    CAP_DEFAULT_PROFILE = 203
-    CAP_BUTTON = 300
-    CAP_BUTTON_KEY = 301
-    CAP_BUTTON_MACROS = 302
-    CAP_LED = 400
-
     __gsignals__ = {
         "active-profile-changed":
             (GObject.SignalFlags.RUN_FIRST, None, (GObject.TYPE_PYOBJECT,)),
@@ -312,6 +300,9 @@ class RatbagdDevice(_RatbagdDBus):
         for profile in self._profiles:
             profile.connect("notify::is-active", self._on_active_profile_changed)
 
+        # Use a SHA1 of our object path as our device's ID
+        self._id = hashlib.sha1(object_path.encode('utf-8')).hexdigest()
+
     def _on_signal_received(self, proxy, sender_name, signal_name, parameters):
         if signal_name == "Resync":
             self.emit("resync")
@@ -322,23 +313,16 @@ class RatbagdDevice(_RatbagdDBus):
 
     @GObject.Property
     def id(self):
-        """The unique identifier of this device."""
-        return self._get_dbus_property("Id")
+        return self._id
+
+    @id.setter
+    def id(self, id):
+        self._id = id
 
     @GObject.Property
     def model(self):
         """The unique identifier for this device model."""
         return self._get_dbus_property("Model")
-
-    @GObject.Property
-    def capabilities(self):
-        """The capabilities of this device as an array. Capabilities not
-        present on the device are not in the list. Thus use e.g.
-
-        if RatbagdDevice.CAP_SWITCHABLE_RESOLUTION is in device.capabilities:
-            do something
-        """
-        return self._get_dbus_property("Capabilities") or []
 
     @GObject.Property
     def name(self):
@@ -381,6 +365,9 @@ class RatbagdProfile(_RatbagdDBus):
     """Represents a ratbagd profile."""
 
     CAP_WRITABLE_NAME = 100
+    CAP_SET_DEFAULT = 101
+    CAP_DISABLE = 102
+    CAP_WRITE_ONLY = 103
 
     def __init__(self, object_path):
         _RatbagdDBus.__init__(self, "Profile", object_path)
@@ -463,6 +450,24 @@ class RatbagdProfile(_RatbagdDBus):
         self._set_dbus_property("Enabled", "b", enabled)
 
     @GObject.Property
+    def report_rate(self):
+        """The report rate in Hz."""
+        return self._get_dbus_property("ReportRate")
+
+    @report_rate.setter
+    def report_rate(self, rate):
+        """Set the report rate in Hz.
+
+        @param rate The new report rate, as int
+        """
+        self._set_dbus_property("ReportRate", "u", rate)
+
+    @GObject.Property
+    def report_rates(self):
+        """The list of supported report rates"""
+        return self._get_dbus_property("ReportRates") or []
+
+    @GObject.Property
     def resolutions(self):
         """A list of RatbagdResolution objects with this profile's resolutions.
         Note that the list of resolutions differs between profiles but the number
@@ -510,9 +515,6 @@ class RatbagdProfile(_RatbagdDBus):
 class RatbagdResolution(_RatbagdDBus):
     """Represents a ratbagd resolution."""
 
-    CAP_INDIVIDUAL_REPORT_RATE = 1
-    CAP_SEPARATE_XY_RESOLUTION = 2
-
     def __init__(self, object_path):
         _RatbagdDBus.__init__(self, "Resolution", object_path)
         self._active = self._get_dbus_property("IsActive")
@@ -536,50 +538,34 @@ class RatbagdResolution(_RatbagdDBus):
         return self._get_dbus_property("Index")
 
     @GObject.Property
-    def capabilities(self):
-        """The capabilities of this resolution as a list. Capabilities not
-        present on the resolution are not in the list. Thus use e.g.
-
-        if RatbagdResolution.CAP_SEPARATE_XY_RESOLUTION is in resolution.capabilities:
-            do something
-        """
-        return self._get_dbus_property("Capabilities") or []
-
-    @GObject.Property
     def resolution(self):
-        """The tuple (xres, yres) with each resolution in DPI."""
-        return self._get_dbus_property("Resolution")
+        """The resolution in DPI, either as single value tuple ``(res, )``
+        or as tuple ``(xres, yres)``.
+        """
+        res = self._get_dbus_property("Resolution")
+        if isinstance(res, int):
+            res = tuple([res])
+        return res
 
     @resolution.setter
-    def resolution(self, res):
+    def resolution(self, resolution):
         """Set the x- and y-resolution using the given (xres, yres) tuple.
 
         @param res The new resolution, as (int, int)
         """
-        self._set_dbus_property("Resolution", "(uu)", res)
-
-    @GObject.Property
-    def report_rate(self):
-        """The report rate in Hz."""
-        return self._get_dbus_property("ReportRate")
-
-    @report_rate.setter
-    def report_rate(self, rate):
-        """Set the report rate in Hz.
-
-        @param rate The new report rate, as int
-        """
-        self._set_dbus_property("ReportRate", "u", rate)
+        res = self.resolution
+        if len(res) != len(resolution) or len(res) > 2:
+            raise ValueError('invalid resolution precision')
+        if len(res) == 1:
+            variant = GLib.Variant('u', resolution[0])
+        else:
+            variant = GLib.Variant('(uu)', resolution)
+        self._set_dbus_property("Resolution", "v", variant)
 
     @GObject.Property
     def resolutions(self):
         """The list of supported DPI values"""
         return self._get_dbus_property("Resolutions") or []
-
-    @GObject.Property
-    def report_rates(self):
-        """The list of supported report rates"""
-        return self._get_dbus_property("ReportRates") or []
 
     @GObject.Property
     def is_active(self):
@@ -639,31 +625,6 @@ class RatbagdButton(_RatbagdDBus):
     MACRO_KEY_RELEASE = 2
     MACRO_WAIT = 3
 
-    TYPE_UNKNOWN = 0
-    TYPE_LEFT = 1
-    TYPE_MIDDLE = 2
-    TYPE_RIGHT = 3
-    TYPE_THUMB = 4
-    TYPE_THUMB2 = 5
-    TYPE_THUMB3 = 6
-    TYPE_THUMB4 = 7
-    TYPE_WHEEL_LEFT = 8
-    TYPE_WHEEL_RIGHT = 9
-    TYPE_WHEEL_CLICK = 10
-    TYPE_WHEEL_UP = 11
-    TYPE_WHEEL_DOWN = 12
-    TYPE_WHEEL_RATCHET_MODE_SHIFT = 13
-    TYPE_EXTRA = 14
-    TYPE_SIDE = 15
-    TYPE_PINKIE = 16
-    TYPE_PINKIE2 = 17
-    TYPE_RESOLUTION_CYCLE_UP = 18
-    TYPE_RESOLUTION_UP = 19
-    TYPE_RESOLUTION_DOWN = 20
-    TYPE_PROFILE_CYCLE_UP = 21
-    TYPE_PROFILE_UP = 22
-    TYPE_PROFILE_DOWN = 23
-
     """A table mapping a button's index to its usual function as defined by X
     and the common desktop environments."""
     BUTTON_DESCRIPTION = {
@@ -705,20 +666,22 @@ class RatbagdButton(_RatbagdDBus):
         if "ActionType" in changed_props.keys():
             self.notify("action-type")
 
+    def _mapping(self):
+        return self._get_dbus_property("Mapping")
+
     @GObject.Property
     def index(self):
         """The index of this button."""
         return self._get_dbus_property("Index")
 
     @GObject.Property
-    def type(self):
-        """An enum describing this button's type."""
-        return self._get_dbus_property("Type")
-
-    @GObject.Property
     def mapping(self):
-        """An integer of the current button mapping, if mapping to a button."""
-        return self._get_dbus_property("ButtonMapping")
+        """An integer of the current button mapping, if mapping to a button
+        or None otherwise."""
+        type, button = self._mapping()
+        if type != RatbagdButton.ACTION_TYPE_BUTTON:
+            return None
+        return button
 
     @mapping.setter
     def mapping(self, button):
@@ -726,12 +689,18 @@ class RatbagdButton(_RatbagdDBus):
 
         @param button The button to map to, as int
         """
-        self._set_dbus_property("ButtonMapping", "u", button)
+        button = GLib.Variant("u", button)
+        self._set_dbus_property("Mapping", "(uv)",
+                                (RatbagdButton.ACTION_TYPE_BUTTON, button))
 
     @GObject.Property
     def macro(self):
-        """A RatbagdMacro object representing the currently set macro."""
-        return RatbagdMacro.from_ratbag(self._get_dbus_property("Macro"))
+        """A RatbagdMacro object representing the currently set macro or
+        None otherwise."""
+        type, macro = self._mapping()
+        if type != RatbagdButton.ACTION_TYPE_MACRO:
+            return None
+        return RatbagdMacro.from_ratbag(macro)
 
     @macro.setter
     def macro(self, macro):
@@ -741,12 +710,18 @@ class RatbagdButton(_RatbagdDBus):
         @param macro A RatbagdMacro object representing the macro to apply to
                      the button, as RatbagdMacro.
         """
-        self._set_dbus_property("Macro", "a(uu)", macro.keys)
+        macro = GLib.Variant("a(uu)", macro.keys)
+        self._set_dbus_property("Mapping", "(uv)",
+                                (RatbagdButton.ACTION_TYPE_MACRO, macro))
 
     @GObject.Property
     def special(self):
-        """An enum describing the current special mapping, if mapped to special."""
-        return self._get_dbus_property("SpecialMapping")
+        """An enum describing the current special mapping, if mapped to
+        special or None otherwise."""
+        type, special = self._mapping()
+        if type != RatbagdButton.ACTION_TYPE_SPECIAL:
+            return None
+        return special
 
     @special.setter
     def special(self, special):
@@ -754,7 +729,9 @@ class RatbagdButton(_RatbagdDBus):
 
         @param special The special entry, as one of RatbagdButton.ACTION_SPECIAL_*
         """
-        self._set_dbus_property("SpecialMapping", "u", special)
+        special = GLib.Variant("u", special)
+        self._set_dbus_property("Mapping", "(uv)",
+                                (RatbagdButton.ACTION_TYPE_SPECIAL, special))
 
     @GObject.Property
     def action_type(self):
@@ -763,7 +740,8 @@ class RatbagdButton(_RatbagdDBus):
         ACTION_TYPE_MACRO. This decides which
         *Mapping property has a value.
         """
-        return self._get_dbus_property("ActionType")
+        type, mapping = self._mapping()
+        return type
 
     @GObject.Property
     def action_types(self):
@@ -882,9 +860,9 @@ class RatbagdLed(_RatbagdDBus):
     MODE_CYCLE = 2
     MODE_BREATHING = 3
 
-    COLORDEPTH_MONOCHROME = 400
-    COLORDEPTH_RGB_888 = 401
-    COLORDEPTH_RGB_111 = 402
+    COLORDEPTH_MONOCHROME = 0
+    COLORDEPTH_RGB_888 = 1
+    COLORDEPTH_RGB_111 = 2
 
     LED_DESCRIPTION = {
         # Translators: the LED is off.
@@ -925,12 +903,6 @@ class RatbagdLed(_RatbagdDBus):
     def modes(self):
         """The supported modes as a list"""
         return self._get_dbus_property("Modes")
-
-    @GObject.Property
-    def type(self):
-        """An enum describing this led's type,
-        RatbagdLed.TYPE_LOGO or RatbagdLed.TYPE_SIDE."""
-        return self._get_dbus_property("Type")
 
     @GObject.Property
     def color(self):
