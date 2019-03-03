@@ -55,23 +55,29 @@ class ButtonsPage(Gtk.Box):
         for ratbagd_button in profile.buttons:
             button = OptionButton()
             # Set the correct label in the option button.
-            self._on_ratbagd_button_action_type_changed(ratbagd_button, None, button)
+            self._on_button_mapping_changed(ratbagd_button, None, button)
             button.connect("clicked", self._on_button_clicked, ratbagd_button)
+            ratbagd_button.connect("notify::mapping",
+                                   self._on_button_mapping_changed, button)
+            ratbagd_button.connect("notify::special",
+                                   self._on_button_mapping_changed, button)
+            ratbagd_button.connect("notify::macro",
+                                   self._on_button_mapping_changed, button)
             ratbagd_button.connect("notify::action-type",
-                                   self._on_ratbagd_button_action_type_changed, button)
+                                   self._on_button_mapping_changed, button)
             self._mousemap.add(button, "#button{}".format(ratbagd_button.index))
             self._sizegroup.add_widget(button)
 
     def _on_active_profile_changed(self, device, profile):
         # Disconnect the notify::action_type signal on the old profile's buttons.
         for button in self._profile.buttons:
-            button.disconnect_by_func(self._on_ratbagd_button_action_type_changed)
+            button.disconnect_by_func(self._on_button_mapping_changed)
         # Clear the MouseMap of any children.
         self._mousemap.foreach(Gtk.Widget.destroy)
         # Repopulate the MouseMap.
         self._set_profile(profile)
 
-    def _on_ratbagd_button_action_type_changed(self, ratbagd_button, pspec, optionbutton):
+    def _on_button_mapping_changed(self, ratbagd_button, pspec, optionbutton):
         # Called when the button's action type changed, which means its
         # corresponding optionbutton has to be updated.
         action_type = ratbagd_button.action_type
