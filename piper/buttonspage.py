@@ -144,8 +144,6 @@ class ButtonsPage(Gtk.Box):
                 return profile
 
     def _find_button_type(self, button_type):
-        # TODO: make this use RatbagdButton.Type once
-        # https://github.com/libratbag/libratbag/issues/233 is fixed.
         for button in self._profile.buttons:
             if button.index == button_type:
                 return button

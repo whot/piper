@@ -109,9 +109,6 @@ class ButtonDialog(Gtk.Dialog):
         self._init_ui(buttons)
 
     def _init_ui(self, buttons):
-        # TODO: make this self._button.type == RatbagdButton.TYPE_LEFT or
-        # or self._button.type == RatbagdButton.TYPE_RIGHT once
-        # https://github.com/libratbag/libratbag/issues/233 is fixed.
         if self._button.index in [0, 1]:
             self._init_primary_buttons_ui()
         else:
