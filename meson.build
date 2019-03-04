@@ -1,7 +1,7 @@
 project('piper',
 	version: '0.2.904',
 	license: 'GPLv2',
-	meson_version: '>= 0.40.0')
+	meson_version: '>= 0.42.0')
 # The tag date of the project_version(), update when the version bumps.
 version_date='2019-01-24'
 # Note: Update the Contributor list in data/ui/AboutDialog.ui.in when the
@@ -68,7 +68,9 @@ else
     py3 = pymod.find_installation()
     python_dir = py3.get_install_dir()
 endif
-install_subdir('piper', install_dir: python_dir)
+install_subdir('piper',
+               install_dir: python_dir,
+               exclude_directories: '__pycache__')
 
 config_piper = configuration_data()
 config_piper.set('pkgdatadir', pkgdatadir)
