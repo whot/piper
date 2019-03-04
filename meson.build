@@ -55,12 +55,18 @@ subdir('data')
 subdir('po')
 
 # Find the directory to install our Python code
-python = import('python3')
-py3 = python.find_python()
-message('Getting Python3 install dir')
-python_dir = python.sysconfig_path('purelib')
-if not python_dir.endswith('site-packages')
-	error('Python3 purelib path seems invalid')
+if meson.version().version_compare('<0.48.0')
+    python = import('python3')
+    py3 = python.find_python()
+    python_dir = python.sysconfig_path('purelib')
+    message('Getting Python3 install dir')
+    if not python_dir.endswith('site-packages')
+            error('Python3 purelib path seems invalid')
+    endif
+else
+    pymod = import('python')
+    py3 = pymod.find_installation()
+    python_dir = py3.get_install_dir()
 endif
 install_subdir('piper', install_dir: python_dir)
 
