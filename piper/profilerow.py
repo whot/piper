@@ -36,7 +36,11 @@ class ProfileRow(Gtk.ListBoxRow):
         self._profile = profile
         self._profile.connect("notify::enabled", self._on_profile_notify_enabled)
 
-        self.title.set_text(profile.name)
+        name = profile.name
+        if not name:
+            name = 'Profile {}'.format(profile.index)
+
+        self.title.set_text(name)
         self.show_all()
         self.set_visible(profile.enabled)
 
