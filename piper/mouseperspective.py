@@ -94,7 +94,10 @@ class MousePerspective(Gtk.Overlay):
             self.stack.add_titled(LedsPage(device), "leds", _("LEDs"))
 
         self.button_profile.set_visible(len(device.profiles) > 1)
-        self.label_profile.set_label(active_profile.name)
+        name = active_profile.name
+        if not name:
+            name = 'Profile {}'.format(active_profile.index)
+        self.label_profile.set_label(name)
         self._on_profile_notify_dirty(active_profile, None)
 
         # Find the first profile that is enabled. If there is none, disable the
