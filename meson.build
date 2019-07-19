@@ -1,5 +1,5 @@
 project('piper',
-	version: '0.2.904',
+	version: '0.2.905',
 	license: 'GPLv2',
 	meson_version: '>= 0.42.0')
 # The tag date of the project_version(), update when the version bumps.
@@ -11,7 +11,7 @@ version_date='2019-01-24'
 dependency('python3', required: true)
 dependency('pygobject-3.0', required: true)
 ratbagd = find_program('ratbagd', required: false)
-ratbagd_required_version='0.9.905'
+ratbagd_required_version='0.9.906'
 
 if not ratbagd.found()
 	message('''
