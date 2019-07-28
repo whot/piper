@@ -16,6 +16,7 @@
 
 from gettext import gettext as _
 
+from .ratbagd import RatbagdIncompatible, RatbagdUnavailable
 from .errorperspective import ErrorPerspective
 from .gi_composites import GtkTemplate
 from .mouseperspective import MousePerspective
@@ -38,7 +39,7 @@ class Window(Gtk.ApplicationWindow):
     stack_perspectives = GtkTemplate.Child()
     primary_menu = GtkTemplate.Child()
 
-    def __init__(self, ratbag, *args, **kwargs):
+    def __init__(self, init_ratbagd_cb, *args, **kwargs):
         """Instantiates a new Window.
 
         @param ratbag The ratbag instance to connect to, as ratbagd.Ratbag
@@ -46,10 +47,16 @@ class Window(Gtk.ApplicationWindow):
         Gtk.ApplicationWindow.__init__(self, *args, **kwargs)
         self.init_template()
 
-        self._add_perspective(ErrorPerspective(), ratbag)
-        if ratbag is None:
+        self._add_perspective(ErrorPerspective(), None)
+        try:
+            ratbag = init_ratbagd_cb()
+        except RatbagdUnavailable:
             self._present_error_perspective(_("Cannot connect to ratbagd"),
                                             _("Please make sure ratbagd is running"))
+            return
+        except RatbagdIncompatible as e:
+            self._present_error_perspective(_("Incompatible ratbagd API version (required: {}, provided: {})".format(e.required_version, e.ratbagd_version)),
+                                            _("Please update both piper and libratbag to the latest versions"))
             return
 
         for perspective in [MousePerspective(), WelcomePerspective()]:
