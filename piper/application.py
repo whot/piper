@@ -14,7 +14,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-from .ratbagd import Ratbagd, RatbagdUnavailable
+from .ratbagd import Ratbagd
 from .window import Window
 
 import gi
@@ -29,11 +29,12 @@ class Application(Gtk.Application):
     do_activate methods and is responsible for the application's menus, icons,
     title and lifetime."""
 
-    def __init__(self):
+    def __init__(self, ratbagd_api_version):
         """Instantiates a new Application."""
         Gtk.Application.__init__(self, application_id="org.freedesktop.Piper",
                                  flags=Gio.ApplicationFlags.FLAGS_NONE)
         GLib.set_application_name("Piper")
+        self._required_ratbagd_version = ratbagd_api_version
 
     def do_startup(self):
         """This function is called when the application is first started. All
@@ -41,15 +42,17 @@ class Application(Gtk.Application):
         case another window is opened."""
         Gtk.Application.do_startup(self)
         self._build_app_menu()
-        try:
-            self._ratbag = Ratbagd()
-        except RatbagdUnavailable:
-            self._ratbag = None
+        self._ratbagd = None
+
+    def init_ratbagd(self):
+        if self._ratbagd is None:
+            self._ratbag = Ratbagd(self._required_ratbagd_version)
+        return self._ratbag
 
     def do_activate(self):
         """This function is called when the user requests a new window to be
         opened."""
-        window = Window(self._ratbag, application=self)
+        window = Window(self.init_ratbagd, application=self)
         window.present()
 
     def _build_app_menu(self):

@@ -5,6 +5,12 @@ project('piper',
 # The tag date of the project_version(), update when the version bumps.
 version_date='2019-01-24'
 
+# The DBus API version of ratbagd that we are compatible with. Anything
+# higher or lower will not be compatible so make sure you bumpt that to the
+# latest released ratbagd version whenever a piper release is made.
+ratbagd_api_version = 1
+
+
 # Dependencies
 dependency('python3', required: true)
 dependency('pygobject-3.0', required: true)
@@ -75,6 +81,7 @@ config_piper.set('pkgdatadir', pkgdatadir)
 config_piper.set('localedir', localedir)
 config_piper.set('gtk_major_version', gtk_major_version)
 config_piper.set('gtk_minor_version', gtk_minor_version)
+config_piper.set('RATBAGD_API_VERSION', ratbagd_api_version)
 config_piper.set('devel', '')
 
 config_piper_devel = config_piper

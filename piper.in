@@ -43,5 +43,5 @@ if __name__ == "__main__":
     gettext.textdomain('piper')
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
-    exit_status = Application().run(sys.argv)
+    exit_status = Application(@RATBAGD_API_VERSION@).run(sys.argv)
     sys.exit(exit_status)
