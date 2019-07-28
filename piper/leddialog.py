@@ -45,10 +45,10 @@ class LedDialog(Gtk.Dialog):
         self.init_template()
         self._led = ratbagd_led
         self._modes = {
-            "solid": RatbagdLed.MODE_ON,
-            "cycle": RatbagdLed.MODE_CYCLE,
-            "breathing": RatbagdLed.MODE_BREATHING,
-            "off": RatbagdLed.MODE_OFF
+            "solid": RatbagdLed.Mode.ON,
+            "cycle": RatbagdLed.Mode.CYCLE,
+            "breathing": RatbagdLed.Mode.BREATHING,
+            "off": RatbagdLed.Mode.OFF
         }
 
         mode = self._led.mode
@@ -89,7 +89,7 @@ class LedDialog(Gtk.Dialog):
 
     @GObject.Property
     def color(self):
-        if self.mode == RatbagdLed.MODE_ON:
+        if self.mode == RatbagdLed.Mode.ON:
             rgba = self.colorchooser.get_rgba()
         else:
             rgba = self.colorbutton.get_rgba()

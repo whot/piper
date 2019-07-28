@@ -34,12 +34,12 @@ class ResolutionsPage(Gtk.Box):
     __gtype_name__ = "ResolutionsPage"
 
     _resolution_labels = [
-        RatbagdButton.ACTION_SPECIAL_RESOLUTION_CYCLE_UP,
-        RatbagdButton.ACTION_SPECIAL_RESOLUTION_CYCLE_DOWN,
-        RatbagdButton.ACTION_SPECIAL_RESOLUTION_UP,
-        RatbagdButton.ACTION_SPECIAL_RESOLUTION_DOWN,
-        RatbagdButton.ACTION_SPECIAL_RESOLUTION_ALTERNATE,
-        RatbagdButton.ACTION_SPECIAL_RESOLUTION_DEFAULT,
+        RatbagdButton.ActionSpecial.RESOLUTION_CYCLE_UP,
+        RatbagdButton.ActionSpecial.RESOLUTION_CYCLE_DOWN,
+        RatbagdButton.ActionSpecial.RESOLUTION_UP,
+        RatbagdButton.ActionSpecial.RESOLUTION_DOWN,
+        RatbagdButton.ActionSpecial.RESOLUTION_ALTERNATE,
+        RatbagdButton.ActionSpecial.RESOLUTION_DEFAULT,
     ]
 
     rate_500 = GtkTemplate.Child()
@@ -73,7 +73,7 @@ class ResolutionsPage(Gtk.Box):
         # Place the MouseMap on the left
         self.reorder_child(mousemap, 0)
         for button in profile.buttons:
-            if button.action_type == RatbagdButton.ACTION_TYPE_SPECIAL and \
+            if button.action_type == RatbagdButton.ActionType.SPECIAL and \
                     button.special in self._resolution_labels:
                 label = Gtk.Label(label=_(RatbagdButton.SPECIAL_DESCRIPTION[button.special]))
                 mousemap.add(label, "#button{}".format(button.index))
