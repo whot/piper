@@ -42,10 +42,10 @@ class ButtonRow(Gtk.ListBoxRow):
         @param description The text to display in the row, as str.
         @param section The section this row belongs to, as str.
         @param action_type The type of this row's mapping, as one of
-                           RatbagdButton.ACTION_TYPE_*.
+                           RatbagdButton.ActionType.*.
         @param value The value to set when this row is activated. The type needs
                      to match the action_type, e.g. for it should be int for
-                     RatbagdButton.ACTION_TYPE_BUTTON.
+                     RatbagdButton.ActionType.BUTTON.
         """
         Gtk.ListBoxRow.__init__(self, *args, **kwargs)
         self._section = section
@@ -97,11 +97,11 @@ class ButtonDialog(Gtk.Dialog):
         self._current_macro = None
         self._button = ratbagd_button
         self._action_type = self._button.action_type
-        if self._action_type == RatbagdButton.ACTION_TYPE_BUTTON:
+        if self._action_type == RatbagdButton.ActionType.BUTTON:
             self._mapping = self._button.mapping
-        elif self._action_type == RatbagdButton.ACTION_TYPE_MACRO:
+        elif self._action_type == RatbagdButton.ActionType.MACRO:
             self._mapping = self._button.macro
-        elif self._action_type == RatbagdButton.ACTION_TYPE_SPECIAL:
+        elif self._action_type == RatbagdButton.ActionType.SPECIAL:
             self._mapping = self._button.special
         else:
             self._mapping = -1
@@ -138,22 +138,22 @@ class ButtonDialog(Gtk.Dialog):
         for button in buttons:
             key, name = self._get_button_name_and_description(button)
             # Translators: section header for mapping one button's click to another.
-            row = ButtonRow(name, _("Button mapping"), RatbagdButton.ACTION_TYPE_BUTTON, button.index + 1)
+            row = ButtonRow(name, _("Button mapping"), RatbagdButton.ActionType.BUTTON, button.index + 1)
             self.listbox.insert(row, i)
-            if self._action_type == RatbagdButton.ACTION_TYPE_BUTTON and button.index + 1 == self._button.mapping:
+            if self._action_type == RatbagdButton.ActionType.BUTTON and button.index + 1 == self._button.mapping:
                 self.listbox.select_row(row)
             i += 1
         for key, name in RatbagdButton.SPECIAL_DESCRIPTION.items():
             if name == "Unknown" or name == "Invalid":
                 continue
             # Translators: section header for assigning special functions to buttons.
-            row = ButtonRow(_(name), _("Special mapping"), RatbagdButton.ACTION_TYPE_SPECIAL, key)
+            row = ButtonRow(_(name), _("Special mapping"), RatbagdButton.ActionType.SPECIAL, key)
             self.listbox.insert(row, i)
-            if self._action_type == RatbagdButton.ACTION_TYPE_SPECIAL and key == self._mapping:
+            if self._action_type == RatbagdButton.ActionType.SPECIAL and key == self._mapping:
                 self.listbox.select_row(row)
             i += 1
 
-        if self._action_type == RatbagdButton.ACTION_TYPE_MACRO:
+        if self._action_type == RatbagdButton.ActionType.MACRO:
             self._create_current_macro(macro=self._mapping)
         else:
             self._create_current_macro()
@@ -290,7 +290,7 @@ class ButtonDialog(Gtk.Dialog):
             event.keyval = Gdk.KEY_Print
 
         if event.type == Gdk.EventType.KEY_PRESS:
-            type = RatbagdButton.MACRO_KEY_PRESS
+            type = RatbagdButton.Macro.KEY_PRESS
 
             # Return accepts the current keystroke.
             if event.keyval == Gdk.KEY_Return:
@@ -298,14 +298,14 @@ class ButtonDialog(Gtk.Dialog):
                 return
             # Escape cancels the editing.
             elif event.keyval == Gdk.KEY_Escape:
-                if self._action_type == RatbagdButton.ACTION_TYPE_MACRO:
+                if self._action_type == RatbagdButton.ActionType.MACRO:
                     self._create_current_macro(macro=self._mapping)
                 else:
                     self._create_current_macro()
                 self.stack.set_visible_child_name("overview")
                 return
         elif event.type == Gdk.EventType.KEY_RELEASE:
-            type = RatbagdButton.MACRO_KEY_RELEASE
+            type = RatbagdButton.Macro.KEY_RELEASE
 
         # TODO: this needs to be checked for its Wayland support.
         if not self._XORG_KEYCODE_OFFSET <= event.hardware_keycode <= 255:
@@ -321,7 +321,7 @@ class ButtonDialog(Gtk.Dialog):
 
     def _on_macro_set(self, macro):
         # A macro has been set; update accordingly.
-        self._action_type = RatbagdButton.ACTION_TYPE_MACRO
+        self._action_type = RatbagdButton.ActionType.MACRO
         self._mapping = macro
         self.stack.set_visible_child_name("overview")
         self._release_grab()
@@ -349,7 +349,7 @@ class ButtonDialog(Gtk.Dialog):
     def _on_primary_mode_toggled(self, toggle):
         if not toggle.get_active():
             return
-        self._action_type = RatbagdButton.ACTION_TYPE_BUTTON
+        self._action_type = RatbagdButton.ActionType.BUTTON
         if toggle is self.radio_left_handed:
             self._mapping = ButtonDialog.LEFT_HANDED_MODE
         elif toggle is self.radio_right_handed:
@@ -357,7 +357,7 @@ class ButtonDialog(Gtk.Dialog):
 
     @GObject.Property
     def action_type(self):
-        """The action type as last set in the dialog, one of RatbagdButton.ACTION_TYPE_*."""
+        """The action type as last set in the dialog, one of RatbagdButton.ActionType.*."""
         return self._action_type
 
     @GObject.Property

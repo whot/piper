@@ -116,7 +116,7 @@ class _RatbagdDBus(GObject.GObject):
     _dbus = None
 
     def __init__(self, interface, object_path):
-        GObject.GObject.__init__(self)
+        super().__init__()
 
         if _RatbagdDBus._dbus is None:
             try:
@@ -125,8 +125,8 @@ class _RatbagdDBus(GObject.GObject):
                 raise RatbagdUnavailable(e.message)
 
         ratbag1 = "org.freedesktop.ratbag1"
-        if os.environ.get('RATBAGCTL_DEVEL'):
-            ratbag1 = os.environ['RATBAGCTL_DEVEL']
+        if os.environ.get('RATBAG_TEST'):
+            ratbag1 = "org.freedesktop.ratbag_devel1"
 
         if object_path is None:
             object_path = "/" + ratbag1.replace('.', '/')
@@ -239,7 +239,7 @@ class Ratbagd(_RatbagdDBus):
     }
 
     def __init__(self):
-        _RatbagdDBus.__init__(self, "Manager", None)
+        super().__init__("Manager", None)
         result = self._get_dbus_property("Devices") or []
         self._devices = [RatbagdDevice(objpath) for objpath in result]
         self._proxy.connect("notify::g-name-owner", self._on_name_owner_changed)
@@ -291,7 +291,7 @@ class RatbagdDevice(_RatbagdDBus):
     }
 
     def __init__(self, object_path):
-        _RatbagdDBus.__init__(self, "Device", object_path)
+        super().__init__("Device", object_path)
 
         # FIXME: if we start adding and removing objects from this list,
         # things will break!
@@ -370,7 +370,7 @@ class RatbagdProfile(_RatbagdDBus):
     CAP_WRITE_ONLY = 103
 
     def __init__(self, object_path):
-        _RatbagdDBus.__init__(self, "Profile", object_path)
+        super().__init__("Profile", object_path)
         self._dirty = False
         self._active = self._get_dbus_property("IsActive")
 
@@ -516,7 +516,7 @@ class RatbagdResolution(_RatbagdDBus):
     """Represents a ratbagd resolution."""
 
     def __init__(self, object_path):
-        _RatbagdDBus.__init__(self, "Resolution", object_path)
+        super().__init__("Resolution", object_path)
         self._active = self._get_dbus_property("IsActive")
         self._default = self._get_dbus_property("IsDefault")
 
@@ -595,35 +595,39 @@ class RatbagdResolution(_RatbagdDBus):
 class RatbagdButton(_RatbagdDBus):
     """Represents a ratbagd button."""
 
-    ACTION_TYPE_NONE = 0
-    ACTION_TYPE_BUTTON = 1
-    ACTION_TYPE_SPECIAL = 2
-    ACTION_TYPE_MACRO = 4
+    class ActionType(IntEnum):
+        NONE = 0
+        BUTTON = 1
+        SPECIAL = 2
+        MACRO = 4
 
-    ACTION_SPECIAL_INVALID = -1
-    ACTION_SPECIAL_UNKNOWN = (1 << 30)
-    ACTION_SPECIAL_DOUBLECLICK = (1 << 30) + 1
-    ACTION_SPECIAL_WHEEL_LEFT = (1 << 30) + 2
-    ACTION_SPECIAL_WHEEL_RIGHT = (1 << 30) + 3
-    ACTION_SPECIAL_WHEEL_UP = (1 << 30) + 4
-    ACTION_SPECIAL_WHEEL_DOWN = (1 << 30) + 5
-    ACTION_SPECIAL_RATCHET_MODE_SWITCH = (1 << 30) + 6
-    ACTION_SPECIAL_RESOLUTION_CYCLE_UP = (1 << 30) + 7
-    ACTION_SPECIAL_RESOLUTION_CYCLE_DOWN = (1 << 30) + 8
-    ACTION_SPECIAL_RESOLUTION_UP = (1 << 30) + 9
-    ACTION_SPECIAL_RESOLUTION_DOWN = (1 << 30) + 10
-    ACTION_SPECIAL_RESOLUTION_ALTERNATE = (1 << 30) + 11
-    ACTION_SPECIAL_RESOLUTION_DEFAULT = (1 << 30) + 12
-    ACTION_SPECIAL_PROFILE_CYCLE_UP = (1 << 30) + 13
-    ACTION_SPECIAL_PROFILE_CYCLE_DOWN = (1 << 30) + 14
-    ACTION_SPECIAL_PROFILE_UP = (1 << 30) + 15
-    ACTION_SPECIAL_PROFILE_DOWN = (1 << 30) + 16
-    ACTION_SPECIAL_SECOND_MODE = (1 << 30) + 17
-    ACTION_SPECIAL_BATTERY_LEVEL = (1 << 30) + 18
+    class ActionSpecial(IntEnum):
+        INVALID = -1
+        UNKNOWN = (1 << 30)
+        DOUBLECLICK = (1 << 30) + 1
+        WHEEL_LEFT = (1 << 30) + 2
+        WHEEL_RIGHT = (1 << 30) + 3
+        WHEEL_UP = (1 << 30) + 4
+        WHEEL_DOWN = (1 << 30) + 5
+        RATCHET_MODE_SWITCH = (1 << 30) + 6
+        RESOLUTION_CYCLE_UP = (1 << 30) + 7
+        RESOLUTION_CYCLE_DOWN = (1 << 30) + 8
+        RESOLUTION_UP = (1 << 30) + 9
+        RESOLUTION_DOWN = (1 << 30) + 10
+        RESOLUTION_ALTERNATE = (1 << 30) + 11
+        RESOLUTION_DEFAULT = (1 << 30) + 12
+        PROFILE_CYCLE_UP = (1 << 30) + 13
+        PROFILE_CYCLE_DOWN = (1 << 30) + 14
+        PROFILE_UP = (1 << 30) + 15
+        PROFILE_DOWN = (1 << 30) + 16
+        SECOND_MODE = (1 << 30) + 17
+        BATTERY_LEVEL = (1 << 30) + 18
 
-    MACRO_KEY_PRESS = 1
-    MACRO_KEY_RELEASE = 2
-    MACRO_WAIT = 3
+    class Macro(IntEnum):
+        NONE = 0
+        KEY_PRESS = 1
+        KEY_RELEASE = 2
+        WAIT = 3
 
     """A table mapping a button's index to its usual function as defined by X
     and the common desktop environments."""
@@ -637,33 +641,33 @@ class RatbagdButton(_RatbagdDBus):
 
     """A table mapping a special function to its human-readable description."""
     SPECIAL_DESCRIPTION = {
-        ACTION_SPECIAL_INVALID: N_("Invalid"),
-        ACTION_SPECIAL_UNKNOWN: N_("Unknown"),
-        ACTION_SPECIAL_DOUBLECLICK: N_("Doubleclick"),
-        ACTION_SPECIAL_WHEEL_LEFT: N_("Wheel Left"),
-        ACTION_SPECIAL_WHEEL_RIGHT: N_("Wheel Right"),
-        ACTION_SPECIAL_WHEEL_UP: N_("Wheel Up"),
-        ACTION_SPECIAL_WHEEL_DOWN: N_("Wheel Down"),
-        ACTION_SPECIAL_RATCHET_MODE_SWITCH: N_("Ratchet Mode"),
-        ACTION_SPECIAL_RESOLUTION_CYCLE_UP: N_("Cycle Resolution Up"),
-        ACTION_SPECIAL_RESOLUTION_CYCLE_DOWN: N_("Cycle Resolution Down"),
-        ACTION_SPECIAL_RESOLUTION_UP: N_("Resolution Up"),
-        ACTION_SPECIAL_RESOLUTION_DOWN: N_("Resolution Down"),
-        ACTION_SPECIAL_RESOLUTION_ALTERNATE: N_("Resolution Switch"),
-        ACTION_SPECIAL_RESOLUTION_DEFAULT: N_("Default Resolution"),
-        ACTION_SPECIAL_PROFILE_CYCLE_UP: N_("Cycle Profile Up"),
-        ACTION_SPECIAL_PROFILE_CYCLE_DOWN: N_("Cycle Profile Down"),
-        ACTION_SPECIAL_PROFILE_UP: N_("Profile Up"),
-        ACTION_SPECIAL_PROFILE_DOWN: N_("Profile Down"),
-        ACTION_SPECIAL_SECOND_MODE: N_("Second Mode"),
-        ACTION_SPECIAL_BATTERY_LEVEL: N_("Battery Level"),
+        ActionSpecial.INVALID: N_("Invalid"),
+        ActionSpecial.UNKNOWN: N_("Unknown"),
+        ActionSpecial.DOUBLECLICK: N_("Doubleclick"),
+        ActionSpecial.WHEEL_LEFT: N_("Wheel Left"),
+        ActionSpecial.WHEEL_RIGHT: N_("Wheel Right"),
+        ActionSpecial.WHEEL_UP: N_("Wheel Up"),
+        ActionSpecial.WHEEL_DOWN: N_("Wheel Down"),
+        ActionSpecial.RATCHET_MODE_SWITCH: N_("Ratchet Mode"),
+        ActionSpecial.RESOLUTION_CYCLE_UP: N_("Cycle Resolution Up"),
+        ActionSpecial.RESOLUTION_CYCLE_DOWN: N_("Cycle Resolution Down"),
+        ActionSpecial.RESOLUTION_UP: N_("Resolution Up"),
+        ActionSpecial.RESOLUTION_DOWN: N_("Resolution Down"),
+        ActionSpecial.RESOLUTION_ALTERNATE: N_("Resolution Switch"),
+        ActionSpecial.RESOLUTION_DEFAULT: N_("Default Resolution"),
+        ActionSpecial.PROFILE_CYCLE_UP: N_("Cycle Profile Up"),
+        ActionSpecial.PROFILE_CYCLE_DOWN: N_("Cycle Profile Down"),
+        ActionSpecial.PROFILE_UP: N_("Profile Up"),
+        ActionSpecial.PROFILE_DOWN: N_("Profile Down"),
+        ActionSpecial.SECOND_MODE: N_("Second Mode"),
+        ActionSpecial.BATTERY_LEVEL: N_("Battery Level"),
     }
 
     def __init__(self, object_path):
-        _RatbagdDBus.__init__(self, "Button", object_path)
+        super().__init__("Button", object_path)
 
     def _on_properties_changed(self, proxy, changed_props, invalidated_props):
-        if "ActionType" in changed_props.keys():
+        if "Mapping" in changed_props.keys():
             self.notify("action-type")
 
     def _mapping(self):
@@ -679,7 +683,7 @@ class RatbagdButton(_RatbagdDBus):
         """An integer of the current button mapping, if mapping to a button
         or None otherwise."""
         type, button = self._mapping()
-        if type != RatbagdButton.ACTION_TYPE_BUTTON:
+        if type != RatbagdButton.ActionType.BUTTON:
             return None
         return button
 
@@ -691,14 +695,14 @@ class RatbagdButton(_RatbagdDBus):
         """
         button = GLib.Variant("u", button)
         self._set_dbus_property("Mapping", "(uv)",
-                                (RatbagdButton.ACTION_TYPE_BUTTON, button))
+                                (RatbagdButton.ActionType.BUTTON, button))
 
     @GObject.Property
     def macro(self):
         """A RatbagdMacro object representing the currently set macro or
         None otherwise."""
         type, macro = self._mapping()
-        if type != RatbagdButton.ACTION_TYPE_MACRO:
+        if type != RatbagdButton.ActionType.MACRO:
             return None
         return RatbagdMacro.from_ratbag(macro)
 
@@ -712,14 +716,14 @@ class RatbagdButton(_RatbagdDBus):
         """
         macro = GLib.Variant("a(uu)", macro.keys)
         self._set_dbus_property("Mapping", "(uv)",
-                                (RatbagdButton.ACTION_TYPE_MACRO, macro))
+                                (RatbagdButton.ActionType.MACRO, macro))
 
     @GObject.Property
     def special(self):
         """An enum describing the current special mapping, if mapped to
         special or None otherwise."""
         type, special = self._mapping()
-        if type != RatbagdButton.ACTION_TYPE_SPECIAL:
+        if type != RatbagdButton.ActionType.SPECIAL:
             return None
         return special
 
@@ -727,17 +731,17 @@ class RatbagdButton(_RatbagdDBus):
     def special(self, special):
         """Set the button mapping to the given special entry.
 
-        @param special The special entry, as one of RatbagdButton.ACTION_SPECIAL_*
+        @param special The special entry, as one of RatbagdButton.ActionSpecial
         """
         special = GLib.Variant("u", special)
         self._set_dbus_property("Mapping", "(uv)",
-                                (RatbagdButton.ACTION_TYPE_SPECIAL, special))
+                                (RatbagdButton.ActionType.SPECIAL, special))
 
     @GObject.Property
     def action_type(self):
         """An enum describing the action type of the button. One of
-        ACTION_TYPE_NONE, ACTION_TYPE_BUTTON, ACTION_TYPE_SPECIAL,
-        ACTION_TYPE_MACRO. This decides which
+        ActionType.NONE, ActionType.BUTTON, ActionType.SPECIAL,
+        ActionType.MACRO. This decides which
         *Mapping property has a value.
         """
         type, mapping = self._mapping()
@@ -765,11 +769,11 @@ class RatbagdMacro(GObject.Object):
     _MACRO_KEY = 1000
 
     _MACRO_DESCRIPTION = {
-        RatbagdButton.MACRO_KEY_PRESS: lambda key:
+        RatbagdButton.Macro.KEY_PRESS: lambda key:
             "↓{}".format(ecodes.KEY[key][RatbagdMacro._PREFIX_LEN:]),
-        RatbagdButton.MACRO_KEY_RELEASE: lambda key:
+        RatbagdButton.Macro.KEY_RELEASE: lambda key:
             "↑{}".format(ecodes.KEY[key][RatbagdMacro._PREFIX_LEN:]),
-        RatbagdButton.MACRO_WAIT: lambda val:
+        RatbagdButton.Macro.WAIT: lambda val:
             "{}ms".format(val),
         _MACRO_KEY: lambda key:
             "↕{}".format(ecodes.KEY[key][RatbagdMacro._PREFIX_LEN:]),
@@ -780,7 +784,7 @@ class RatbagdMacro(GObject.Object):
     }
 
     def __init__(self, **kwargs):
-        GObject.Object.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._macro = []
 
     def __str__(self):
@@ -793,10 +797,10 @@ class RatbagdMacro(GObject.Object):
         while idx < len(self._macro):
             t, v = self._macro[idx]
             try:
-                if t == RatbagdButton.MACRO_KEY_PRESS:
+                if t == RatbagdButton.Macro.KEY_PRESS:
                     # Check for a paired press/release event
                     t2, v2 = self._macro[idx + 1]
-                    if t2 == RatbagdButton.MACRO_KEY_RELEASE and v == v2:
+                    if t2 == RatbagdButton.Macro.KEY_RELEASE and v == v2:
                         t = self._MACRO_KEY
                         idx += 1
             except IndexError:
@@ -807,7 +811,7 @@ class RatbagdMacro(GObject.Object):
 
     @GObject.Property
     def keys(self):
-        """A list of (RatbagdButton.MACRO_*, value) tuples representing the
+        """A list of (RatbagdButton.Macro.*, value) tuples representing the
         current macro."""
         return self._macro
 
@@ -817,7 +821,7 @@ class RatbagdMacro(GObject.Object):
         libratbag format.
 
         @param macro The macro in libratbag format, as
-                     [(RatbagdButton.MACRO_*, value)].
+                     [(RatbagdButton.Macro.*, value)].
         """
         ratbagd_macro = RatbagdMacro()
 
@@ -834,7 +838,7 @@ class RatbagdMacro(GObject.Object):
     def append(self, type, value):
         """Appends the given event to the current macro.
 
-        @param type The type of event, as one of RatbagdButton.MACRO_*.
+        @param type The type of event, as one of RatbagdButton.Macro.*.
         @param value If the type denotes a key event, the X.Org or Gdk keycode
                      of the event, as int. Otherwise, the value of the timeout
                      in milliseconds, as int.
@@ -855,29 +859,31 @@ class RatbagdLed(_RatbagdDBus):
     TYPE_DPI = 4
     TYPE_WHEEL = 5
 
-    MODE_OFF = 0
-    MODE_ON = 1
-    MODE_CYCLE = 2
-    MODE_BREATHING = 3
+    class Mode(IntEnum):
+        OFF = 0
+        ON = 1
+        CYCLE = 2
+        BREATHING = 3
 
-    COLORDEPTH_MONOCHROME = 0
-    COLORDEPTH_RGB_888 = 1
-    COLORDEPTH_RGB_111 = 2
+    class ColorDepth(IntEnum):
+        MONOCHROME = 0
+        RGB_888 = 1
+        RGB_111 = 2
 
     LED_DESCRIPTION = {
         # Translators: the LED is off.
-        MODE_OFF: N_("Off"),
+        Mode.OFF: N_("Off"),
         # Translators: the LED has a single, solid color.
-        MODE_ON: N_("Solid"),
+        Mode.ON: N_("Solid"),
         # Translators: the LED is cycling between red, green and blue.
-        MODE_CYCLE: N_("Cycle"),
+        Mode.CYCLE: N_("Cycle"),
         # Translators: the LED's is pulsating a single color on different
         # brightnesses.
-        MODE_BREATHING: N_("Breathing"),
+        Mode.BREATHING: N_("Breathing"),
     }
 
     def __init__(self, object_path):
-        _RatbagdDBus.__init__(self, "Led", object_path)
+        super().__init__("Led", object_path)
 
     @GObject.Property
     def index(self):
@@ -886,16 +892,16 @@ class RatbagdLed(_RatbagdDBus):
 
     @GObject.Property
     def mode(self):
-        """This led's mode, one of MODE_OFF, MODE_ON, MODE_CYCLE and
-        MODE_BREATHING."""
+        """This led's mode, one of Mode.OFF, Mode.ON, Mode.CYCLE and
+        Mode.BREATHING."""
         return self._get_dbus_property("Mode")
 
     @mode.setter
     def mode(self, mode):
         """Set the led's mode to the given mode.
 
-        @param mode The new mode, as one of MODE_OFF, MODE_ON, MODE_CYCLE and
-                    MODE_BREATHING.
+        @param mode The new mode, as one of Mode.OFF, Mode.ON, Mode.CYCLE and
+                    Mode.BREATHING.
         """
         self._set_dbus_property("Mode", "u", mode)
 
@@ -920,7 +926,7 @@ class RatbagdLed(_RatbagdDBus):
     @GObject.Property
     def colordepth(self):
         """An enum describing this led's colordepth, one of
-        RatbagdLed.COLORDEPTH_MONOCHROME, RatbagdLed.COLORDEPTH_RGB"""
+        RatbagdLed.ColorDepth.MONOCHROME, RatbagdLed.ColorDepth.RGB"""
         return self._get_dbus_property("ColorDepth")
 
     @GObject.Property
