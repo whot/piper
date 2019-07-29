@@ -14,11 +14,11 @@ jobs:
       # now install and checks the resulting file (just in case)
       - run:
           command: |
-            dnf install -y meson gettext python3-devel pygobject3-devel libratbag-ratbagd
+            dnf install -y meson gettext python3-devel pygobject3-devel python3-lxml libratbag-ratbagd
       - run:
           command: |
             meson build
-            ninja -C build
+            ninja -C build test
       - run: flake8-3 build/piper build/piper.devel
       - store_artifacts:
           path: ~/piper/build/meson-logs
