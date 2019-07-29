@@ -60,9 +60,9 @@ def check_elements(root, prefix, required=0):
 
     # elements can be paths and rects
     # This includes leaders and lines
-    element_ids = [p.attrib['id'] for p in root.xpath('//svg:path', namespaces=ns) if p.attrib['id'].startswith(prefix)]
-    element_ids += [p.attrib['id'] for p in root.xpath('//svg:rect', namespaces=ns) if p.attrib['id'].startswith(prefix)]
-    element_ids += [g.attrib['id'] for g in root.xpath('//svg:g', namespaces=ns) if g.attrib['id'].startswith(prefix)]
+    element_ids = []
+    for element in ['path', 'rect', 'g']:
+        element_ids += [p.attrib['id'] for p in root.xpath('//svg:{}'.format(element), namespaces=ns) if p.attrib['id'].startswith(prefix)]
 
     idx = 0
     highest = -1
