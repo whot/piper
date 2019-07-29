@@ -61,7 +61,7 @@ def check_elements(root, prefix, required=0):
     # elements can be paths and rects
     # This includes leaders and lines
     element_ids = []
-    for element in ['path', 'rect', 'g']:
+    for element in ['path', 'rect', 'g', 'circle']:
         element_ids += [p.attrib['id'] for p in root.xpath('//svg:{}'.format(element), namespaces=ns) if p.attrib['id'].startswith(prefix)]
 
     idx = 0
