@@ -77,6 +77,14 @@ test('check-svg', test_svg_files,
      args: svgs,
      env: ['BASEDIR=@0@'.format(meson.current_source_dir())])
 
+test('svg-lookup-check',
+     find_program('svg-lookup-ini-test.py'),
+     args: [
+         svg_mapping,
+         join_paths(meson.source_root(), 'data/svgs/')
+     ],
+)
+
 gresource = configure_file(input: 'piper.gresource.xml.in',
                            output: 'piper.gresource.xml',
                            command: ['generate-piper-gresource.xml.py',
