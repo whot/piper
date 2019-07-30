@@ -41,31 +41,31 @@ i18n.merge_file(input: appdata,
 
 svgs = [
 	'svgs/fallback.svg',
+	'svgs/logitech-g9.svg',
 	'svgs/logitech-g102-g203.svg',
 	'svgs/logitech-g300.svg',
 	'svgs/logitech-g303.svg',
 	'svgs/logitech-g402.svg',
 	'svgs/logitech-g403.svg',
-	'svgs/logitech-g500s.svg',
 	'svgs/logitech-g500.svg',
+	'svgs/logitech-g500s.svg',
 	'svgs/logitech-g502.svg',
 	'svgs/logitech-g600.svg',
 	'svgs/logitech-g603.svg',
 	'svgs/logitech-g700.svg',
 	'svgs/logitech-g703.svg',
 	'svgs/logitech-g900.svg',
-	'svgs/logitech-g9.svg',
 	'svgs/logitech-g-pro.svg',
 	'svgs/logitech-g-pro-wireless.svg',
-	'svgs/logitech-mx-anywhere2s.svg',
 	'svgs/logitech-mx-anywhere2.svg',
-	'svgs/logitech-mx-master-2s.svg',
+	'svgs/logitech-mx-anywhere2s.svg',
 	'svgs/logitech-mx-master.svg',
+	'svgs/logitech-mx-master-2s.svg',
 	'svgs/roccat-kone-xtd.svg',
 	'svgs/steelseries-kinzu-v2.svg',
+	'svgs/steelseries-rival.svg',
 	'svgs/steelseries-rival310.svg',
 	'svgs/steelseries-rival600.svg',
-	'svgs/steelseries-rival.svg',
 	'svgs/steelseries-sensei310.svg',
 	'svgs/steelseries-senseiraw.svg',
 ]
@@ -83,7 +83,18 @@ test('svg-lookup-check',
          svg_mapping,
          join_paths(meson.source_root(), 'data/svgs/')
      ],
+
 )
+# meson requires that we specify all files one-by-one, so let's add a test
+# that we can't forget about that.
+test('svg-files-in-meson.build',
+     find_program('check-svg-in-meson.build.sh'),
+     args: [meson.source_root()],
+     suite: ['all'])
+test('files-in-git',
+     find_program('check-files-in-git.sh'),
+     args: [meson.source_root()],
+     suite: ['all'])
 
 gresource = configure_file(input: 'piper.gresource.xml.in',
                            output: 'piper.gresource.xml',
