@@ -14,7 +14,7 @@ jobs:
       # now install and checks the resulting file (just in case)
       - run:
           command: |
-            dnf install -y meson gettext python3-devel pygobject3-devel python3-lxml libratbag-ratbagd
+            dnf install -y meson gettext python3-devel pygobject3-devel python3-lxml libratbag-ratbagd python3-cairo python3-evdev
       - run:
           command: |
             meson build
