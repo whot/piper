@@ -69,7 +69,24 @@ if meson.version().version_compare('<0.48.0')
     endif
 else
     pymod = import('python')
-    py3 = pymod.find_installation()
+    # external python modules that are required for running piper
+    python_modules = [
+        'lxml',
+        'evdev',
+        'cairo',
+        'gi',
+    ]
+    if meson.version().version_compare('>=0.51')
+        py3 = pymod.find_installation(modules: python_modules)
+    else
+        py3 = pymod.find_installation()
+
+        foreach module: python_modules
+            if run_command(py3, '-c', 'import @0@'.format(module)).returncode() != 0
+                error('Failed to find required python module \'@0@\'.'.format(module))
+            endif
+        endforeach
+    endif
     python_dir = py3.get_install_dir()
 endif
 install_subdir('piper',
