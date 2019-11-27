@@ -183,7 +183,7 @@
     <g
        transform="translate(-24.643032,-405.50394)"
        style="display:inline"
-       id="scroll_left"
+       id="button11"
        inkscape:label="Scroll Left">
       <path
          id="path1016"
@@ -194,7 +194,7 @@
     <g
        transform="translate(13.352497,-407.26997)"
        style="display:inline"
-       id="scroll_right"
+       id="button12"
        inkscape:label="Scroll Right">
       <path
          id="path1018"
@@ -710,6 +710,64 @@
          x="130.02231"
          y="21.440399"
          inkscape:label="button10-target" />
+    </g>
+    <g
+      transform="translate(54.271653,96.079553)"
+      inkscape:label="Scroll Left"
+      id="button11-path">
+      <rect
+        ry="2.7755576e-17"
+        y="84.011139"
+        x="428.73004"
+        height="1"
+        width="1"
+        id="button11-leader"
+        style="color:#000000;text-align:start;overflow:visible;vector-effect:none;fill:#888a85;fill-opacity:1;stroke:none;stroke-linecap:round"
+        inkscape:label="button11-leader" />
+      <rect
+        inkscape:label="button11-target"
+        y="22.162722"
+        x="248.39017"
+        height="6.999999"
+        width="6.999999"
+        id="button11-target"
+        style="color:#000000;overflow:visible;opacity:1;vector-effect:none;fill:#2e3436;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;marker-start:none;marker-mid:none;marker-end:none;paint-order:normal" />
+      <path
+        inkscape:label="button11-line"
+        sodipodi:nodetypes="cccc"
+        inkscape:connector-curvature="0"
+        d="m 429.71555,84.510813 -147.87365,0.10742 -29.90482,-29.96833 0.0505,-25.48703"
+        style="color:#000000;display:inline;overflow:visible;opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#888a85;stroke-width:1.00000072;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;marker-start:none;marker-mid:none;marker-end:none;paint-order:normal"
+        id="button11-line" />
+    </g>
+    <g
+      transform="translate(63.644724,61.254544)"
+      inkscape:label="Scroll Right"
+      id="button12-path">
+      <rect
+        ry="2.7755576e-17"
+        y="78.745514"
+        x="419.35895"
+        height="1"
+        width="1"
+        id="button12-leader"
+        style="color:#000000;text-align:start;overflow:visible;vector-effect:none;fill:#888a85;fill-opacity:1;stroke:none;stroke-linecap:round"
+        inkscape:label="button12-leader" />
+      <rect
+        inkscape:label="button12-target"
+        y="56.987274"
+        x="281"
+        height="6.999999"
+        width="6.999999"
+        id="button12-target"
+        style="color:#000000;overflow:visible;opacity:1;vector-effect:none;fill:#2e3436;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;marker-start:none;marker-mid:none;marker-end:none;paint-order:normal" />
+      <path
+        id="button12-line"
+        style="color:#000000;overflow:visible;opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#888a85;stroke-width:1.21770847;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;marker-start:none;marker-mid:none;marker-end:none;paint-order:normal"
+        d="m 287.99777,60.160194 92.04051,-0.05049 17.542,19.225354 22.77651,-0.06026"
+        inkscape:connector-curvature="0"
+        sodipodi:nodetypes="cccc"
+        inkscape:label="button12-line" />
     </g>
   </g>
   <g
